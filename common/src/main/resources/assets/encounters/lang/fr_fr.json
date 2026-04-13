@@ -1,7 +1,11 @@
 {
     "encounters.mod.name": "Encounters",
 
+    "yacl3.config.encounters:config.category.general": "Général",
     "yacl3.config.encounters:config.category.lightning_overcharge": "Éclair surchargé",
+
+    "yacl3.config.encounters:config.mobsDropEquipment": "Les mobs peuvent lâcher leur équipement",
+    "yacl3.config.encounters:config.mobsDropEquipment.desc": "Quand activé, les mobs apparus lors d'un évènement peuvent lâcher les armes et armures avec lesquelles ils ont spawn. Désactivé par défaut : leur équipement est toujours conservé.",
 
     "yacl3.config.encounters:config.lightningOverchargeEnabled": "Activé",
     "yacl3.config.encounters:config.lightningOverchargeEnabled.desc": "Interrupteur principal de l'évènement éclair surchargé. Désactivé, les éclairs d'orage naturels se comportent normalement.",

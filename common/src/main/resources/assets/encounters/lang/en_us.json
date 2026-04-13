@@ -1,7 +1,11 @@
 {
     "encounters.mod.name": "Encounters",
 
+    "yacl3.config.encounters:config.category.general": "General",
     "yacl3.config.encounters:config.category.lightning_overcharge": "Lightning Overcharge",
+
+    "yacl3.config.encounters:config.mobsDropEquipment": "Mobs Drop Equipment",
+    "yacl3.config.encounters:config.mobsDropEquipment.desc": "When enabled, mobs spawned by any encounter event can drop the weapons and armor they spawned with. When disabled (default), their equipment is always kept.",
 
     "yacl3.config.encounters:config.lightningOverchargeEnabled": "Enabled",
     "yacl3.config.encounters:config.lightningOverchargeEnabled.desc": "Master toggle for the lightning overcharge event. When disabled, natural thunderstorm lightning behaves normally.",

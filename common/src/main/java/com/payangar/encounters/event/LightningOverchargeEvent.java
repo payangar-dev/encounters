@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -155,6 +156,14 @@ public final class LightningOverchargeEvent {
             Services.PLATFORM.finalizeMobSpawn(m, level,
                     level.getCurrentDifficultyAt(m.blockPosition()),
                     MobSpawnType.EVENT);
+        }
+
+        // Must run after loadEntityRecursive/finalizeSpawn to override both
+        // user-provided HandDropChances/ArmorDropChances NBT and vanilla defaults.
+        if (!EncountersConfig.get().mobsDropEquipment && entity instanceof Mob m) {
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                m.setDropChance(slot, 0f);
+            }
         }
 
         if (!level.tryAddFreshEntityWithPassengers(entity)) {
