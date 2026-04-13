@@ -1,0 +1,32 @@
+{
+    "encounters.mod.name": "Encounters",
+
+    "yacl3.config.encounters:config.category.lightning_overcharge": "Éclair surchargé",
+
+    "yacl3.config.encounters:config.lightningOverchargeEnabled": "Activé",
+    "yacl3.config.encounters:config.lightningOverchargeEnabled.desc": "Interrupteur principal de l'évènement éclair surchargé. Désactivé, les éclairs d'orage naturels se comportent normalement.",
+
+    "yacl3.config.encounters:config.lightningOverchargeChance": "Chance de déclenchement",
+    "yacl3.config.encounters:config.lightningOverchargeChance.desc": "Probabilité qu'un éclair d'orage naturel déclenche l'évènement. 0 = jamais, 1 = à chaque éclair.",
+
+    "yacl3.config.encounters:config.lightningOverchargeGroupMin": "Taille du groupe (min)",
+    "yacl3.config.encounters:config.lightningOverchargeGroupMin.desc": "Nombre minimum de mobs apparaissant lors du déclenchement.",
+
+    "yacl3.config.encounters:config.lightningOverchargeGroupMax": "Taille du groupe (max)",
+    "yacl3.config.encounters:config.lightningOverchargeGroupMax.desc": "Nombre maximum de mobs apparaissant lors du déclenchement.",
+
+    "yacl3.config.encounters:config.lightningOverchargeMobs": "Pool de mobs",
+    "yacl3.config.encounters:config.lightningOverchargeMobs.desc": "Pool pondéré de mobs pouvant apparaître pendant l'évènement. Cliquez une entrée pour éditer son id, son poids, son label et son SNBT.",
+
+    "encounters.config.weightedMob.empty": "(entrée vide)",
+    "encounters.config.editMob.title": "Édition d'une entrée mob",
+    "encounters.config.editMob.category": "Entrée mob",
+    "encounters.config.editMob.id": "ID de l'entité",
+    "encounters.config.editMob.id.desc": "Identifiant namespaced de l'entité, par ex. minecraft:zombie ou modid:custom_entity.",
+    "encounters.config.editMob.weight": "Poids",
+    "encounters.config.editMob.weight.desc": "Poids relatif dans le pool. Plus élevé = plus fréquent.",
+    "encounters.config.editMob.label": "Label",
+    "encounters.config.editMob.label.desc": "Nom affiché dans la liste GUI et les logs d'évènement. Laisser vide pour n'afficher que l'id.",
+    "encounters.config.editMob.nbt": "SNBT",
+    "encounters.config.editMob.nbt.desc": "SNBT optionnel appliqué au spawn, identique à la syntaxe /summon. Laisser vide pour le comportement par défaut du mob."
+}

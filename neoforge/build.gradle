@@ -1,0 +1,62 @@
+plugins {
+    id 'multiloader-loader'
+    id 'net.neoforged.moddev'
+}
+
+neoForge {
+    version = neoforge_version
+    def at = project(':common').file('src/main/resources/META-INF/accesstransformer.cfg')
+    if (at.exists()) {
+        accessTransformers.from(at.absolutePath)
+    }
+    parchment {
+        minecraftVersion = parchment_minecraft
+        mappingsVersion = parchment_version
+    }
+    runs {
+        configureEach {
+            systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
+            ideName = "NeoForge ${it.name.capitalize()} (${project.path})"
+        }
+        client {
+            client()
+        }
+        server {
+            server()
+        }
+    }
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    maven {
+        name = 'Isxander'
+        url = 'https://maven.isxander.dev/releases'
+    }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+}
+
+dependencies {
+    // YACL — optional client-side config GUI
+    implementation "dev.isxander:yet-another-config-lib:${yacl_version}-neoforge"
+
+    // Iron's Spells 'n Spellbooks — optional compat (NeoForge-only mod).
+    // compileOnly: not required at runtime; bridge is no-op when absent.
+    compileOnly "io.redspace:irons_spellbooks:${irons_spells_version}"
+
+    // EpicFight — optional compat (NeoForge-only for 1.21.1).
+    // compileOnly: runtime mixin is silently skipped when EpicFight is absent.
+    compileOnly "maven.modrinth:epic-fight:${epicfight_version}"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << '-Xlint:deprecation'
+}

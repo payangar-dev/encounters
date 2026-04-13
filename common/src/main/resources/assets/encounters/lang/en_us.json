@@ -1,0 +1,32 @@
+{
+    "encounters.mod.name": "Encounters",
+
+    "yacl3.config.encounters:config.category.lightning_overcharge": "Lightning Overcharge",
+
+    "yacl3.config.encounters:config.lightningOverchargeEnabled": "Enabled",
+    "yacl3.config.encounters:config.lightningOverchargeEnabled.desc": "Master toggle for the lightning overcharge event. When disabled, natural thunderstorm lightning behaves normally.",
+
+    "yacl3.config.encounters:config.lightningOverchargeChance": "Trigger Chance",
+    "yacl3.config.encounters:config.lightningOverchargeChance.desc": "Probability that any given natural thunderstorm lightning bolt triggers the event. 0 = never, 1 = every bolt.",
+
+    "yacl3.config.encounters:config.lightningOverchargeGroupMin": "Group Size (min)",
+    "yacl3.config.encounters:config.lightningOverchargeGroupMin.desc": "Minimum number of mobs spawned when the event triggers.",
+
+    "yacl3.config.encounters:config.lightningOverchargeGroupMax": "Group Size (max)",
+    "yacl3.config.encounters:config.lightningOverchargeGroupMax.desc": "Maximum number of mobs spawned when the event triggers.",
+
+    "yacl3.config.encounters:config.lightningOverchargeMobs": "Mob Pool",
+    "yacl3.config.encounters:config.lightningOverchargeMobs.desc": "Weighted pool of mobs that may spawn during the event. Click an entry to edit its id, weight, label and SNBT.",
+
+    "encounters.config.weightedMob.empty": "(empty entry)",
+    "encounters.config.editMob.title": "Edit Mob Entry",
+    "encounters.config.editMob.category": "Mob Entry",
+    "encounters.config.editMob.id": "Entity ID",
+    "encounters.config.editMob.id.desc": "Namespaced entity id, e.g. minecraft:zombie or modid:custom_entity.",
+    "encounters.config.editMob.weight": "Weight",
+    "encounters.config.editMob.weight.desc": "Relative weight in the pool. Higher = more frequent.",
+    "encounters.config.editMob.label": "Label",
+    "encounters.config.editMob.label.desc": "Optional display name shown in the GUI list and event logs. Leave empty to show only the id.",
+    "encounters.config.editMob.nbt": "SNBT",
+    "encounters.config.editMob.nbt.desc": "Optional SNBT string applied at spawn, identical to the /summon syntax. Leave empty for default mob behaviour."
+}
