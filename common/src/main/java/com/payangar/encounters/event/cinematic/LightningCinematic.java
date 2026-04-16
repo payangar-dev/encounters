@@ -56,20 +56,28 @@ public final class LightningCinematic {
     private static final int SURFACE_SCAN_UP = 3;
     private static final int SURFACE_SCAN_DOWN = 3;
 
-    /**
-     * Dirt-family blocks that get replaced by sculk during the impact wave.
-     * Other blocks (stone, logs, leaves, player-built…) are left alone and
-     * receive sculk_vein decoration during phase 2 instead.
-     */
-    private static final Set<Block> DIRT_FAMILY = Set.of(
-            Blocks.GRASS_BLOCK,
-            Blocks.DIRT,
-            Blocks.COARSE_DIRT,
-            Blocks.PODZOL,
-            Blocks.MYCELIUM,
-            Blocks.ROOTED_DIRT,
-            Blocks.DIRT_PATH,
-            Blocks.MUD
+    private static final Set<Block> NATURAL_SURFACE = Set.of(
+            // dirt family
+            Blocks.GRASS_BLOCK, Blocks.DIRT, Blocks.COARSE_DIRT,
+            Blocks.PODZOL, Blocks.MYCELIUM, Blocks.ROOTED_DIRT,
+            Blocks.DIRT_PATH, Blocks.MUD, Blocks.MUDDY_MANGROVE_ROOTS,
+            // stone family
+            Blocks.STONE, Blocks.GRANITE, Blocks.DIORITE, Blocks.ANDESITE,
+            Blocks.DEEPSLATE, Blocks.TUFF, Blocks.CALCITE, Blocks.DRIPSTONE_BLOCK,
+            // sediment
+            Blocks.SAND, Blocks.RED_SAND, Blocks.GRAVEL, Blocks.CLAY,
+            Blocks.SANDSTONE, Blocks.RED_SANDSTONE,
+            // terracotta
+            Blocks.TERRACOTTA, Blocks.WHITE_TERRACOTTA, Blocks.ORANGE_TERRACOTTA,
+            Blocks.YELLOW_TERRACOTTA, Blocks.RED_TERRACOTTA, Blocks.BROWN_TERRACOTTA,
+            Blocks.LIGHT_GRAY_TERRACOTTA,
+            // cold biomes
+            Blocks.SNOW_BLOCK, Blocks.PACKED_ICE, Blocks.BLUE_ICE,
+            // nether surface (portal event later)
+            Blocks.NETHERRACK, Blocks.SOUL_SAND, Blocks.SOUL_SOIL,
+            Blocks.BASALT, Blocks.BLACKSTONE,
+            // end
+            Blocks.END_STONE
     );
 
     private final ServerLevel level;
@@ -184,7 +192,7 @@ public final class LightningCinematic {
         for (int dy = SURFACE_SCAN_UP; dy >= -SURFACE_SCAN_DOWN; dy--) {
             cursor.set(x, y + dy, z);
             BlockState state = level.getBlockState(cursor);
-            if (DIRT_FAMILY.contains(state.getBlock())) {
+            if (NATURAL_SURFACE.contains(state.getBlock())) {
                 return cursor.immutable();
             }
         }
@@ -213,7 +221,7 @@ public final class LightningCinematic {
         while (groundIdx < groundSlots.size() && groundSlots.get(groundIdx).distance <= currentRadius) {
             GroundSlot slot = groundSlots.get(groundIdx++);
             BlockState here = level.getBlockState(slot.pos);
-            if (!DIRT_FAMILY.contains(here.getBlock())) continue; // someone changed it meanwhile
+            if (!NATURAL_SURFACE.contains(here.getBlock())) continue; // someone changed it meanwhile
             level.setBlockAndUpdate(slot.pos, Blocks.SCULK.defaultBlockState());
             burstParticlesAt(slot.pos);
         }
