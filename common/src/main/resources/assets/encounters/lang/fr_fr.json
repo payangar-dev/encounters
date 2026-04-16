@@ -19,6 +19,12 @@
     "yacl3.config.encounters:config.lightningOverchargeGroupMax": "Taille du groupe (max)",
     "yacl3.config.encounters:config.lightningOverchargeGroupMax.desc": "Nombre maximum de mobs apparaissant lors du déclenchement.",
 
+    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionEnabled": "Cohésion de groupe",
+    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionEnabled.desc": "Quand activé, le premier mob d'un groupe apparu agit comme leader. Les autres se regroupent autour de lui dès qu'ils s'éloignent trop, afin que la rencontre reste cohérente. Les suivants déjà en combat ne sont pas dérangés.",
+
+    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionRadius": "Rayon de cohésion",
+    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionRadius.desc": "Distance en blocs au-delà de laquelle un suivant est rappelé vers son leader.",
+
     "yacl3.config.encounters:config.lightningOverchargeMobs": "Pool de mobs",
     "yacl3.config.encounters:config.lightningOverchargeMobs.desc": "Pool pondéré de mobs pouvant apparaître pendant l'évènement. Cliquez une entrée pour éditer son id, son poids, son label et son SNBT.",
 

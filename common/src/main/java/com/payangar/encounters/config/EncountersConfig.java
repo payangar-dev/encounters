@@ -60,6 +60,17 @@ public class EncountersConfig {
     @IntSlider(min = 1, max = 20, step = 1)
     public int lightningOverchargeGroupMax = 5;
 
+    @SerialEntry(comment = "When enabled, the first mob of a group acts as leader and the others " +
+            "regroup around it whenever they stray too far. Followers in active combat are left alone.")
+    @AutoGen(category = CATEGORY_LIGHTNING)
+    @TickBox
+    public boolean lightningOverchargeGroupCohesionEnabled = true;
+
+    @SerialEntry(comment = "Distance (in blocks) beyond which a follower is pulled back toward its leader")
+    @AutoGen(category = CATEGORY_LIGHTNING)
+    @IntSlider(min = 4, max = 32, step = 1)
+    public int lightningOverchargeGroupCohesionRadius = 12;
+
     @SerialEntry(comment = "Weighted mob pool. Each entry: { id, weight, nbt?, label? }. " +
             "'nbt' is SNBT identical to the /summon command. Editable from the in-game config GUI.")
     @AutoGen(category = CATEGORY_LIGHTNING)
@@ -101,6 +112,9 @@ public class EncountersConfig {
         if (config.lightningOverchargeGroupMin < 1) config.lightningOverchargeGroupMin = 1;
         if (config.lightningOverchargeGroupMax < config.lightningOverchargeGroupMin) {
             config.lightningOverchargeGroupMax = config.lightningOverchargeGroupMin;
+        }
+        if (config.lightningOverchargeGroupCohesionRadius < 1) {
+            config.lightningOverchargeGroupCohesionRadius = 1;
         }
     }
 

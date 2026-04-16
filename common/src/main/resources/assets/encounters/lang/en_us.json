@@ -19,6 +19,12 @@
     "yacl3.config.encounters:config.lightningOverchargeGroupMax": "Group Size (max)",
     "yacl3.config.encounters:config.lightningOverchargeGroupMax.desc": "Maximum number of mobs spawned when the event triggers.",
 
+    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionEnabled": "Group Cohesion",
+    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionEnabled.desc": "When enabled, the first mob of a spawned group acts as leader. The others regroup around it whenever they stray too far, so the encounter stays together. Followers already in combat are left alone.",
+
+    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionRadius": "Cohesion Radius",
+    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionRadius.desc": "Distance in blocks beyond which a follower is pulled back toward its leader.",
+
     "yacl3.config.encounters:config.lightningOverchargeMobs": "Mob Pool",
     "yacl3.config.encounters:config.lightningOverchargeMobs.desc": "Weighted pool of mobs that may spawn during the event. Click an entry to edit its id, weight, label and SNBT.",
 

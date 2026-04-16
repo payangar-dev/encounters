@@ -5,6 +5,8 @@ import com.payangar.encounters.config.EncountersConfig;
 import com.payangar.encounters.config.WeightedMob;
 import com.payangar.encounters.event.cinematic.CinematicTicker;
 import com.payangar.encounters.event.cinematic.LightningCinematic;
+import com.payangar.encounters.event.cohesion.GroupCohesion;
+import com.payangar.encounters.event.cohesion.GroupCohesionTicker;
 import com.payangar.encounters.platform.Services;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -18,6 +20,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +84,7 @@ public final class LightningOverchargeEvent {
         int count = min + rng.nextInt(max - min + 1);
 
         LightningCinematic cinematic = new LightningCinematic(level, pos);
+        List<Mob> groupMembers = new ArrayList<>();
 
         Map<String, Integer> breakdown = new LinkedHashMap<>();
         int spawned = 0;
@@ -97,6 +101,7 @@ public final class LightningOverchargeEvent {
                 if (entity instanceof Mob m) {
                     m.setNoAi(true);
                     m.setPersistenceRequired();
+                    groupMembers.add(m);
                 }
                 cinematic.registerSpawnedMob(entity);
                 breakdown.merge(mob.displayName(), 1, Integer::sum);
@@ -106,6 +111,9 @@ public final class LightningOverchargeEvent {
 
         if (spawned > 0) {
             CinematicTicker.start(cinematic);
+            if (groupMembers.size() >= 2) {
+                GroupCohesionTicker.start(new GroupCohesion(level, groupMembers));
+            }
             String summary = formatBreakdown(breakdown);
             Constants.LOG.info("[{}] triggered at ({}, {}, {}): {}",
                     ID, (int) pos.x, (int) pos.y, (int) pos.z, summary);
