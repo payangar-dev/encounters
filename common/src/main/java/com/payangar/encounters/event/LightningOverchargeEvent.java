@@ -3,6 +3,7 @@ package com.payangar.encounters.event;
 import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.EncountersConfig;
 import com.payangar.encounters.config.WeightedMob;
+import com.payangar.encounters.event.ally.EncounterAllies;
 import com.payangar.encounters.event.cinematic.CinematicTicker;
 import com.payangar.encounters.event.cinematic.LightningCinematic;
 import com.payangar.encounters.event.cohesion.GroupCohesion;
@@ -110,6 +111,10 @@ public final class LightningOverchargeEvent {
         }
 
         if (spawned > 0) {
+            // Allied tagging: members share a group tag so the Mob#setTarget
+            // mixin can veto any targeting between them — no intra-group
+            // retaliation even after friendly-fire AoE or stray arrows.
+            EncounterAllies.tagGroup(groupMembers);
             CinematicTicker.start(cinematic);
             if (groupMembers.size() >= 2) {
                 GroupCohesionTicker.start(new GroupCohesion(level, groupMembers));
