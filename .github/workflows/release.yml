@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: ./gradlew build -Pversion=${{ steps.version.outputs.version }}
+
+      - name: Generate changelog
+        run: |
+          PREV_TAG=$(git tag --sort=-v:refname | sed -n '2p')
+          if [ -z "$PREV_TAG" ]; then
+            git log --pretty=format:"- %s" HEAD > changelog.txt
+          else
+            git log --pretty=format:"- %s" "${PREV_TAG}..HEAD" > changelog.txt
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Encounters v${{ steps.version.outputs.version }}
+          body_path: changelog.txt
+          files: |
+            fabric/build/libs/encounters-fabric-*[0-9].jar
+            neoforge/build/libs/encounters-neoforge-*[0-9].jar
+
+      - name: Publish Fabric
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: ${{ vars.CURSEFORGE_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: fabric/build/libs/encounters-fabric-*[0-9].jar
+          name: Encounters ${{ steps.version.outputs.version }} (Fabric)
+          version: ${{ steps.version.outputs.version }}+fabric
+          version-type: release
+          loaders: fabric
+          game-versions: 1.21.1
+          java: 21
+          changelog-file: changelog.txt
+          dependencies: |
+            fabric-api(required)
+            yacl(required)
+            modmenu(optional)
+
+      - name: Publish NeoForge
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: ${{ vars.CURSEFORGE_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: neoforge/build/libs/encounters-neoforge-*[0-9].jar
+          name: Encounters ${{ steps.version.outputs.version }} (NeoForge)
+          version: ${{ steps.version.outputs.version }}+neoforge
+          version-type: release
+          loaders: neoforge
+          game-versions: 1.21.1
+          java: 21
+          changelog-file: changelog.txt
+          dependencies: |
+            yacl(required)
+            irons-spells-n-spellbooks(optional)
+            epic-fight(optional)
