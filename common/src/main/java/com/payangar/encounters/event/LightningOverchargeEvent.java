@@ -9,8 +9,10 @@ import com.payangar.encounters.event.cinematic.LightningCinematic;
 import com.payangar.encounters.event.cohesion.GroupCohesion;
 import com.payangar.encounters.event.cohesion.GroupCohesionTicker;
 import com.payangar.encounters.platform.Services;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -22,16 +24,19 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public final class LightningOverchargeEvent {
 
     public static final String ID = "lightning_overcharge";
     public static final String OWN_BOLT_TAG = "encounters_overcharged";
     private static final double SPAWN_RADIUS = 2.5;
+    private static final int MAX_PLACEMENT_ATTEMPTS = 24;
 
     private static MobRoster cachedRoster;
     private static List<WeightedMob> cachedSource;
@@ -87,13 +92,26 @@ public final class LightningOverchargeEvent {
         LightningCinematic cinematic = new LightningCinematic(level, pos);
         List<Mob> groupMembers = new ArrayList<>();
 
+        // Track which block columns are already claimed so two mobs never land on
+        // the same block (collision pile-up). The center column is reserved up
+        // front — it's the lightning strike point, and spawning a mob there would
+        // force it to intersect with whatever else the impact produces.
+        Set<Long> usedColumns = new HashSet<>();
+        usedColumns.add(columnKey(pos.x, pos.z));
+
         Map<String, Integer> breakdown = new LinkedHashMap<>();
         int spawned = 0;
         for (int i = 0; i < count; i++) {
             Optional<ResolvedMob> pick = roster.pick(rng);
             if (pick.isEmpty()) continue;
             ResolvedMob mob = pick.get();
-            Entity entity = spawnOne(level, mob, pos, rng);
+            Vec3 spawnPos = findFreeSpawnPos(pos, rng, usedColumns);
+            if (spawnPos == null) {
+                Constants.LOG.debug("[{}] no free column within radius {} for mob #{}/{} — skipping",
+                        ID, SPAWN_RADIUS, i + 1, count);
+                continue;
+            }
+            Entity entity = spawnOne(level, mob, spawnPos, rng);
             if (entity != null) {
                 // Cinematic lockdown: mobs are frozen and untouchable until
                 // phase 1 ends. Persistence prevents vanilla despawn so the
@@ -142,19 +160,37 @@ public final class LightningOverchargeEvent {
         level.addFreshEntity(bolt);
     }
 
-    private static Entity spawnOne(ServerLevel level, ResolvedMob mob, Vec3 center, RandomSource rng) {
-        double angle = rng.nextDouble() * Math.PI * 2.0;
-        double r = rng.nextDouble() * SPAWN_RADIUS;
-        double x = center.x + Math.cos(angle) * r;
-        double z = center.z + Math.sin(angle) * r;
-        double y = center.y;
+    /**
+     * Picks a random position within {@link #SPAWN_RADIUS} whose block column
+     * has not been claimed yet by another mob in the same group (nor by the
+     * reserved center column). Returns {@code null} if no free column was
+     * found within {@link #MAX_PLACEMENT_ATTEMPTS} — the caller should skip
+     * that mob rather than stack it on top of an existing one.
+     */
+    private static Vec3 findFreeSpawnPos(Vec3 center, RandomSource rng, Set<Long> usedColumns) {
+        for (int attempt = 0; attempt < MAX_PLACEMENT_ATTEMPTS; attempt++) {
+            double angle = rng.nextDouble() * Math.PI * 2.0;
+            double r = rng.nextDouble() * SPAWN_RADIUS;
+            double x = center.x + Math.cos(angle) * r;
+            double z = center.z + Math.sin(angle) * r;
+            if (usedColumns.add(columnKey(x, z))) {
+                return new Vec3(x, center.y, z);
+            }
+        }
+        return null;
+    }
 
+    private static long columnKey(double x, double z) {
+        return BlockPos.asLong(Mth.floor(x), 0, Mth.floor(z));
+    }
+
+    private static Entity spawnOne(ServerLevel level, ResolvedMob mob, Vec3 spawnPos, RandomSource rng) {
         CompoundTag tag = mob.nbtCopy();
         boolean userProvidedNbt = !tag.isEmpty();
         tag.putString("id", mob.id().toString());
 
         Entity entity = EntityType.loadEntityRecursive(tag, level, e -> {
-            e.moveTo(x, y, z, rng.nextFloat() * 360f, 0f);
+            e.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, rng.nextFloat() * 360f, 0f);
             return e;
         });
 
