@@ -3,6 +3,7 @@
 
     "yacl3.config.encounters:config.category.general": "Général",
     "yacl3.config.encounters:config.category.lightning_overcharge": "Éclair surchargé",
+    "yacl3.config.encounters:config.category.nether_portal_invasion": "Invasion de portail du Nether",
 
     "yacl3.config.encounters:config.mobsDropEquipment": "Les mobs peuvent lâcher leur équipement",
     "yacl3.config.encounters:config.mobsDropEquipment.desc": "Quand activé, les mobs apparus lors d'un évènement peuvent lâcher les armes et armures avec lesquelles ils ont spawn. Désactivé par défaut : leur équipement est toujours conservé.",
@@ -27,6 +28,39 @@
 
     "yacl3.config.encounters:config.lightningOverchargeMobs": "Pool de mobs",
     "yacl3.config.encounters:config.lightningOverchargeMobs.desc": "Pool pondéré de mobs pouvant apparaître pendant l'évènement. Cliquez une entrée pour éditer son id, son poids, son label et son SNBT.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionEnabled": "Activé",
+    "yacl3.config.encounters:config.netherPortalInvasionEnabled.desc": "Interrupteur principal de l'évènement d'invasion de portail du Nether. Désactivé, aucun portail ne déclenchera jamais d'invasion.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionScanIntervalTicks": "Intervalle de scan (ticks)",
+    "yacl3.config.encounters:config.netherPortalInvasionScanIntervalTicks.desc": "Fréquence à laquelle le mod scanne les chunks chargés à la recherche de portails du Nether actifs. 100 ticks = 5 secondes. Une valeur plus basse réagit plus vite mais coûte un peu plus.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks": "Cooldown du portail (ticks)",
+    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks.desc": "Délai minimum entre deux invasions déclenchées par le même portail. 12000 ticks = 10 minutes.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionTriggerChance": "Chance de déclenchement",
+    "yacl3.config.encounters:config.netherPortalInvasionTriggerChance.desc": "Probabilité qu'un portail éligible déclenche une invasion à un scan donné. 0 = jamais, 1 = à chaque scan.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionMinWaves": "Nombre de vagues (min)",
+    "yacl3.config.encounters:config.netherPortalInvasionMinWaves.desc": "Nombre minimum de vagues par invasion.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionMaxWaves": "Nombre de vagues (max)",
+    "yacl3.config.encounters:config.netherPortalInvasionMaxWaves.desc": "Nombre maximum de vagues par invasion.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionFirstWaveSize": "Taille de la 1ʳᵉ vague",
+    "yacl3.config.encounters:config.netherPortalInvasionFirstWaveSize.desc": "Nombre de mobs apparaissant lors de la première vague.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionWaveSizeStep": "Incrément par vague",
+    "yacl3.config.encounters:config.netherPortalInvasionWaveSizeStep.desc": "Mise à l'échelle linéaire : chaque vague contient « taille 1ʳᵉ vague + (vague-1) × incrément » mobs.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionEnabled": "Cohésion de vague",
+    "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionEnabled.desc": "Quand activé, le premier mob de chaque vague agit comme leader. Les autres membres se regroupent autour de lui dès qu'ils s'éloignent trop. Les suivants déjà en combat ne sont pas dérangés, et les passagers de monture sont ignorés.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionRadius": "Rayon de cohésion",
+    "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionRadius.desc": "Distance en blocs au-delà de laquelle un membre de vague est rappelé vers son leader.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionMobs": "Pool de mobs",
+    "yacl3.config.encounters:config.netherPortalInvasionMobs.desc": "Pool pondéré de mobs pouvant sortir du portail pendant une invasion. Cliquez une entrée pour éditer son id, son poids, son label et son SNBT.",
 
     "encounters.config.weightedMob.empty": "(entrée vide)",
     "encounters.config.editMob.title": "Édition d'une entrée mob",

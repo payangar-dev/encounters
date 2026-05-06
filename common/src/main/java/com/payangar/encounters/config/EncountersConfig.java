@@ -3,6 +3,7 @@ package com.payangar.encounters.config;
 import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.gui.WeightedMobListFactory;
 import com.payangar.encounters.event.LightningOverchargeEvent;
+import com.payangar.encounters.event.portal.NetherPortalInvasionEvent;
 import com.payangar.encounters.platform.Services;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
@@ -21,6 +22,7 @@ public class EncountersConfig {
 
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_LIGHTNING = "lightning_overcharge";
+    public static final String CATEGORY_PORTAL_INVASION = "nether_portal_invasion";
 
     private static final ConfigClassHandler<EncountersConfig> HANDLER = ConfigClassHandler
             .createBuilder(EncountersConfig.class)
@@ -81,6 +83,70 @@ public class EncountersConfig {
     )
     public List<WeightedMob> lightningOverchargeMobs = defaultLightningMobs();
 
+    // ===== Nether Portal Invasion =====
+
+    @SerialEntry(comment = "Master toggle for the nether_portal_invasion event")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @TickBox
+    public boolean netherPortalInvasionEnabled = true;
+
+    @SerialEntry(comment = "How often (in server ticks) the mod scans loaded chunks for active nether portals")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @IntSlider(min = 20, max = 1200, step = 20)
+    public int netherPortalInvasionScanIntervalTicks = 100;
+
+    @SerialEntry(comment = "Cooldown (in ticks) after an invasion ends before the same portal can trigger again")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @IntSlider(min = 1200, max = 72000, step = 1200)
+    public int netherPortalInvasionPortalCooldownTicks = 12000;
+
+    @SerialEntry(comment = "Probability (per scan) that an eligible portal triggers an invasion")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @DoubleSlider(min = 0.0, max = 1.0, step = 0.01)
+    public double netherPortalInvasionTriggerChance = 0.05;
+
+    @SerialEntry(comment = "Minimum number of waves per invasion (inclusive)")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @IntSlider(min = 1, max = 12, step = 1)
+    public int netherPortalInvasionMinWaves = 4;
+
+    @SerialEntry(comment = "Maximum number of waves per invasion (inclusive)")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @IntSlider(min = 1, max = 12, step = 1)
+    public int netherPortalInvasionMaxWaves = 6;
+
+    @SerialEntry(comment = "Number of mobs in the first wave")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @IntSlider(min = 1, max = 10, step = 1)
+    public int netherPortalInvasionFirstWaveSize = 2;
+
+    @SerialEntry(comment = "Additional mobs added per wave (linear scaling: wave_n = first + (n-1) * step)")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @IntSlider(min = 0, max = 5, step = 1)
+    public int netherPortalInvasionWaveSizeStep = 1;
+
+    @SerialEntry(comment = "When enabled, the first mob of each wave acts as leader. " +
+            "Other wave members regroup around it whenever they stray too far. " +
+            "Followers in active combat are left alone, and mounted mobs' passengers are skipped.")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @TickBox
+    public boolean netherPortalInvasionGroupCohesionEnabled = true;
+
+    @SerialEntry(comment = "Distance (in blocks) beyond which a wave member is pulled back toward its leader")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @IntSlider(min = 4, max = 32, step = 1)
+    public int netherPortalInvasionGroupCohesionRadius = 12;
+
+    @SerialEntry(comment = "Weighted mob pool for the nether portal invasion. " +
+            "Same { id, weight, nbt?, label? } format as the lightning event.")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @ListGroup(
+            valueFactory = WeightedMobListFactory.class,
+            controllerFactory = WeightedMobListFactory.class,
+            addEntriesToBottom = true
+    )
+    public List<WeightedMob> netherPortalInvasionMobs = defaultPortalInvasionMobs();
+
     // ===== Access =====
 
     public static EncountersConfig get() {
@@ -95,6 +161,7 @@ public class EncountersConfig {
         HANDLER.load();
         sanitize(HANDLER.instance());
         LightningOverchargeEvent.invalidateRoster();
+        NetherPortalInvasionEvent.invalidateRoster();
         Constants.LOG.info("Loaded {} config from {}.json5", Constants.MOD_NAME, Constants.MOD_ID);
     }
 
@@ -102,6 +169,7 @@ public class EncountersConfig {
         sanitize(HANDLER.instance());
         HANDLER.save();
         LightningOverchargeEvent.invalidateRoster();
+        NetherPortalInvasionEvent.invalidateRoster();
     }
 
     private static void sanitize(EncountersConfig config) {
@@ -116,6 +184,43 @@ public class EncountersConfig {
         if (config.lightningOverchargeGroupCohesionRadius < 1) {
             config.lightningOverchargeGroupCohesionRadius = 1;
         }
+        if (config.netherPortalInvasionTriggerChance < 0.0 || config.netherPortalInvasionTriggerChance > 1.0) {
+            Constants.LOG.warn("netherPortalInvasionTriggerChance was {}, clamped to [0, 1]",
+                    config.netherPortalInvasionTriggerChance);
+            config.netherPortalInvasionTriggerChance = Math.max(0.0, Math.min(1.0, config.netherPortalInvasionTriggerChance));
+        }
+        if (config.netherPortalInvasionMinWaves < 1) config.netherPortalInvasionMinWaves = 1;
+        if (config.netherPortalInvasionMaxWaves < config.netherPortalInvasionMinWaves) {
+            config.netherPortalInvasionMaxWaves = config.netherPortalInvasionMinWaves;
+        }
+        if (config.netherPortalInvasionFirstWaveSize < 1) config.netherPortalInvasionFirstWaveSize = 1;
+        if (config.netherPortalInvasionWaveSizeStep < 0) config.netherPortalInvasionWaveSizeStep = 0;
+        if (config.netherPortalInvasionScanIntervalTicks < 20) config.netherPortalInvasionScanIntervalTicks = 20;
+        if (config.netherPortalInvasionPortalCooldownTicks < 1200) config.netherPortalInvasionPortalCooldownTicks = 1200;
+        if (config.netherPortalInvasionGroupCohesionRadius < 1) {
+            config.netherPortalInvasionGroupCohesionRadius = 1;
+        }
+    }
+
+    private static List<WeightedMob> defaultPortalInvasionMobs() {
+        List<WeightedMob> list = new ArrayList<>();
+        // Piglin variants dominate the early waves; nether elites and the
+        // mounted hoglin combos take over as the rarity bias kicks in. Hoglin
+        // appears only as a mount (its Piglin Brute rider doesn't antagonize
+        // it because PiglinBruteAi has no StartHuntingHoglin task — and the
+        // regular Piglin's hunting task is suspended in RIDE activity).
+        // Magma cube and standalone hoglin/zoglin remain excluded for the
+        // reasons documented in CLAUDE.md.
+        list.add(new WeightedMob("minecraft:piglin", 40, SNBT_PIGLIN_SOLDIER, "Piglin Soldier"));
+        list.add(new WeightedMob("minecraft:piglin", 25, SNBT_PIGLIN_MARKSMAN, "Piglin Marksman"));
+        list.add(new WeightedMob("minecraft:piglin", 15, SNBT_PIGLIN_SHIELDBEARER, "Piglin Shieldbearer"));
+        list.add(new WeightedMob("minecraft:wither_skeleton", 12, SNBT_ASHEN_MARAUDER, "Ashen Marauder"));
+        list.add(new WeightedMob("minecraft:blaze", 8, SNBT_EMBERCALLER, "Embercaller"));
+        list.add(new WeightedMob("minecraft:piglin_brute", 5, SNBT_IRONHIDE_BRUTE, "Ironhide Brute"));
+        list.add(new WeightedMob("minecraft:hoglin", 3, SNBT_TUSKED_VANGUARD, "Tusked Vanguard"));
+        list.add(new WeightedMob("minecraft:hoglin", 2, SNBT_CROSSBOW_OUTRIDER, "Crossbow Outrider"));
+        list.add(new WeightedMob("minecraft:ghast", 1, SNBT_INFERNO_SOVEREIGN, "Inferno Sovereign"));
+        return list;
     }
 
     private static List<WeightedMob> defaultLightningMobs() {
@@ -190,5 +295,55 @@ public class EncountersConfig {
     // Requires: simplyswords
     private static final String SNBT_STORMBORN_MARKSMAN = """
             {attributes:[{id:"minecraft:generic.scale",base:1.15d},{id:"minecraft:generic.max_health",base:30.0d}],Health:30.0f,active_effects:[{id:"minecraft:speed",amplifier:0b,duration:-1,show_particles:0b},{id:"simplyswords:storm",amplifier:1b,duration:-1,show_particles:1b}],HandItems:[{id:"minecraft:bow",count:1,components:{"minecraft:enchantments":{power:3,punch:2}}},{}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":1912627,"minecraft:enchantments":{protection:2}}},{}]}\
+            """;
+
+    // ===== Nether Portal Invasion SNBT =====
+    // Piglin variants — IsImmuneToZombification stays true so they don't
+    // morph mid-fight in the overworld (also enforced by EncounterSpawner
+    // on the outer entity, but passenger NBT needs it explicitly).
+
+    // Piglin entries opt into the banner-bearer pool via Tags:["encounters_banner_eligible"].
+    // Removing the tag from a user-customised entry takes that mob out of the banner pool
+    // without touching code.
+
+    private static final String SNBT_PIGLIN_SOLDIER = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:25.0d}],Health:25.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:golden_sword",count:1,components:{"minecraft:enchantments":{sharpness:2}}},{}]}\
+            """;
+
+    private static final String SNBT_PIGLIN_MARKSMAN = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:25.0d}],Health:25.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:crossbow",count:1,components:{"minecraft:enchantments":{quick_charge:2}}},{}]}\
+            """;
+
+    private static final String SNBT_PIGLIN_SHIELDBEARER = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:35.0d},{id:"minecraft:generic.knockback_resistance",base:0.5d}],Health:35.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:iron_sword",count:1,components:{"minecraft:enchantments":{sharpness:2}}},{id:"minecraft:shield",count:1}]}\
+            """;
+
+    private static final String SNBT_ASHEN_MARAUDER = """
+            {attributes:[{id:"minecraft:generic.max_health",base:25.0d}],Health:25.0f,HandItems:[{id:"minecraft:stone_sword",count:1},{}]}\
+            """;
+
+    private static final String SNBT_EMBERCALLER = """
+            {attributes:[{id:"minecraft:generic.max_health",base:25.0d}],Health:25.0f}\
+            """;
+
+    private static final String SNBT_IRONHIDE_BRUTE = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.scale",base:1.1d},{id:"minecraft:generic.max_health",base:60.0d},{id:"minecraft:generic.knockback_resistance",base:0.4d}],Health:60.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:iron_axe",count:1,components:{"minecraft:enchantments":{sharpness:3}}},{}]}\
+            """;
+
+    // Mounted: hoglin (mount) + piglin brute rider with iron axe + KB1.
+    // PiglinBruteAi has no StartHuntingHoglin task, so no antagonism loop.
+    // Banner tag applies to the rider only — the hoglin mount carries no flag.
+    private static final String SNBT_TUSKED_VANGUARD = """
+            {attributes:[{id:"minecraft:generic.max_health",base:50.0d},{id:"minecraft:generic.knockback_resistance",base:0.6d}],Health:50.0f,IsImmuneToZombification:1b,Passengers:[{id:"minecraft:piglin_brute",Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.scale",base:1.1d},{id:"minecraft:generic.max_health",base:50.0d}],Health:50.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:iron_axe",count:1,components:{"minecraft:enchantments":{sharpness:2,knockback:1}}},{}]}]}\
+            """;
+
+    // Mounted: hoglin (mount) + piglin crossbow rider. Regular Piglin's
+    // StartHuntingHoglin task is suspended in RIDE activity, so no loop.
+    private static final String SNBT_CROSSBOW_OUTRIDER = """
+            {attributes:[{id:"minecraft:generic.max_health",base:45.0d},{id:"minecraft:generic.knockback_resistance",base:0.5d}],Health:45.0f,IsImmuneToZombification:1b,Passengers:[{id:"minecraft:piglin",Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:25.0d}],Health:25.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:crossbow",count:1,components:{"minecraft:enchantments":{quick_charge:2,multishot:1}}},{}]}]}\
+            """;
+
+    private static final String SNBT_INFERNO_SOVEREIGN = """
+            {attributes:[{id:"minecraft:generic.scale",base:1.1d},{id:"minecraft:generic.max_health",base:30.0d}],Health:30.0f}\
             """;
 }

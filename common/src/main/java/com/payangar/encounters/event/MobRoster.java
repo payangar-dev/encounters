@@ -7,37 +7,84 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.world.entity.EntityType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.IntUnaryOperator;
 
 public final class MobRoster {
 
-    private final SimpleWeightedRandomList<ResolvedMob> pool;
-    private final int size;
+    public record Entry(ResolvedMob mob, int weight) {}
 
-    private MobRoster(SimpleWeightedRandomList<ResolvedMob> pool, int size) {
-        this.pool = pool;
-        this.size = size;
+    private final List<Entry> entries;
+    private final int totalBaseWeight;
+    private final int maxBaseWeight;
+
+    private MobRoster(List<Entry> entries) {
+        this.entries = List.copyOf(entries);
+        int total = 0;
+        int max = 0;
+        for (Entry e : entries) {
+            total += e.weight;
+            if (e.weight > max) max = e.weight;
+        }
+        this.totalBaseWeight = total;
+        this.maxBaseWeight = max;
     }
 
     public boolean isEmpty() {
-        return size == 0;
+        return entries.isEmpty();
     }
 
     public int size() {
-        return size;
+        return entries.size();
+    }
+
+    /** Highest base weight in the pool — useful to build per-pick weight transforms. */
+    public int maxBaseWeight() {
+        return maxBaseWeight;
     }
 
     public Optional<ResolvedMob> pick(RandomSource rng) {
-        return pool.getRandomValue(rng);
+        if (totalBaseWeight <= 0) return Optional.empty();
+        int roll = rng.nextInt(totalBaseWeight);
+        int acc = 0;
+        for (Entry e : entries) {
+            acc += e.weight;
+            if (roll < acc) return Optional.of(e.mob());
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Picks a mob with weights remapped per-pick by {@code weightTransform}.
+     * Negative outputs are clamped to 0; if every transformed weight is zero
+     * the result is empty. Use this for callers that want to bias the
+     * distribution dynamically (e.g. wave-based rarity scaling).
+     */
+    public Optional<ResolvedMob> pick(RandomSource rng, IntUnaryOperator weightTransform) {
+        if (entries.isEmpty()) return Optional.empty();
+        int[] adjusted = new int[entries.size()];
+        int total = 0;
+        for (int i = 0; i < entries.size(); i++) {
+            int w = Math.max(0, weightTransform.applyAsInt(entries.get(i).weight()));
+            adjusted[i] = w;
+            total += w;
+        }
+        if (total <= 0) return Optional.empty();
+        int roll = rng.nextInt(total);
+        int acc = 0;
+        for (int i = 0; i < adjusted.length; i++) {
+            acc += adjusted[i];
+            if (roll < acc) return Optional.of(entries.get(i).mob());
+        }
+        return Optional.empty();
     }
 
     public static MobRoster resolve(List<WeightedMob> raw, String eventId) {
-        SimpleWeightedRandomList.Builder<ResolvedMob> builder = SimpleWeightedRandomList.builder();
-        int kept = 0;
+        List<Entry> resolved = new ArrayList<>();
         int filtered = 0;
 
         if (raw != null) {
@@ -87,12 +134,12 @@ public final class MobRoster {
                     continue;
                 }
 
-                ResolvedMob resolved = new ResolvedMob(id, maybeType.get(), nbt, entry.label);
-                builder.add(resolved, entry.weight);
-                kept++;
+                ResolvedMob resolvedMob = new ResolvedMob(id, maybeType.get(), nbt, entry.label);
+                resolved.add(new Entry(resolvedMob, entry.weight));
             }
         }
 
+        int kept = resolved.size();
         if (kept == 0) {
             Constants.LOG.warn("[{}] no valid mob entries after filtering — event will be disabled (kept=0, filtered={})",
                     eventId, filtered);
@@ -102,6 +149,6 @@ public final class MobRoster {
             Constants.LOG.info("[{}] roster resolved: {} valid entries", eventId, kept);
         }
 
-        return new MobRoster(builder.build(), kept);
+        return new MobRoster(resolved);
     }
 }

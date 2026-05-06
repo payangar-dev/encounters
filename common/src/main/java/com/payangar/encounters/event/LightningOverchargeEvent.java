@@ -8,18 +8,14 @@ import com.payangar.encounters.event.cinematic.CinematicTicker;
 import com.payangar.encounters.event.cinematic.LightningCinematic;
 import com.payangar.encounters.event.cohesion.GroupCohesion;
 import com.payangar.encounters.event.cohesion.GroupCohesionTicker;
-import com.payangar.encounters.platform.Services;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -111,7 +107,7 @@ public final class LightningOverchargeEvent {
                         ID, SPAWN_RADIUS, i + 1, count);
                 continue;
             }
-            Entity entity = spawnOne(level, mob, spawnPos, rng);
+            Entity entity = EncounterSpawner.spawn(level, mob, spawnPos, rng, ID);
             if (entity != null) {
                 // Cinematic lockdown: mobs are frozen and untouchable until
                 // phase 1 ends. Persistence prevents vanilla despawn so the
@@ -135,7 +131,9 @@ public final class LightningOverchargeEvent {
             EncounterAllies.tagGroup(groupMembers);
             CinematicTicker.start(cinematic);
             if (groupMembers.size() >= 2) {
-                GroupCohesionTicker.start(new GroupCohesion(level, groupMembers));
+                GroupCohesionTicker.start(new GroupCohesion(level, groupMembers,
+                        () -> EncountersConfig.get().lightningOverchargeGroupCohesionEnabled,
+                        () -> EncountersConfig.get().lightningOverchargeGroupCohesionRadius));
             }
             String summary = formatBreakdown(breakdown);
             Constants.LOG.info("[{}] triggered at ({}, {}, {}): {}",
@@ -182,44 +180,6 @@ public final class LightningOverchargeEvent {
 
     private static long columnKey(double x, double z) {
         return BlockPos.asLong(Mth.floor(x), 0, Mth.floor(z));
-    }
-
-    private static Entity spawnOne(ServerLevel level, ResolvedMob mob, Vec3 spawnPos, RandomSource rng) {
-        CompoundTag tag = mob.nbtCopy();
-        boolean userProvidedNbt = !tag.isEmpty();
-        tag.putString("id", mob.id().toString());
-
-        Entity entity = EntityType.loadEntityRecursive(tag, level, e -> {
-            e.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, rng.nextFloat() * 360f, 0f);
-            return e;
-        });
-
-        if (entity == null) {
-            Constants.LOG.warn("[{}] failed to load entity '{}'", ID, mob.id());
-            return null;
-        }
-
-        // Mirror vanilla /summon: only call finalizeSpawn when the user did NOT
-        // provide custom NBT (otherwise we would overwrite equipment/attributes).
-        if (!userProvidedNbt && entity instanceof Mob m) {
-            Services.PLATFORM.finalizeMobSpawn(m, level,
-                    level.getCurrentDifficultyAt(m.blockPosition()),
-                    MobSpawnType.EVENT);
-        }
-
-        // Must run after loadEntityRecursive/finalizeSpawn to override both
-        // user-provided HandDropChances/ArmorDropChances NBT and vanilla defaults.
-        if (!EncountersConfig.get().mobsDropEquipment && entity instanceof Mob m) {
-            for (EquipmentSlot slot : EquipmentSlot.values()) {
-                m.setDropChance(slot, 0f);
-            }
-        }
-
-        if (!level.tryAddFreshEntityWithPassengers(entity)) {
-            Constants.LOG.warn("[{}] refused to add entity '{}' (duplicate UUID?)", ID, mob.id());
-            return null;
-        }
-        return entity;
     }
 
     private static boolean isNaturalStormBolt(ServerLevel level, LightningBolt bolt) {

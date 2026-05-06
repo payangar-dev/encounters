@@ -1,12 +1,13 @@
 package com.payangar.encounters.event.cohesion;
 
-import com.payangar.encounters.config.EncountersConfig;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
+import java.util.function.IntSupplier;
 
 /**
  * Tracks a single encounter group and keeps its members anchored around a
@@ -16,6 +17,10 @@ import java.util.List;
  * <p>Followers in active combat ({@code getTarget() != null}) and AI-locked
  * mobs (e.g. during the cinematic IMPACT phase) are left alone, so cohesion
  * never overrides combat or the spawn lockdown.</p>
+ *
+ * <p>Cohesion settings (enabled toggle and radius) are read through suppliers
+ * passed at construction time so the class stays event-agnostic. Each event
+ * wires its own config fields. Live edits take effect on the next tick.</p>
  */
 public final class GroupCohesion {
 
@@ -24,12 +29,16 @@ public final class GroupCohesion {
 
     private final ServerLevel level;
     private final List<Mob> members;
+    private final BooleanSupplier enabled;
+    private final IntSupplier radius;
     private int leaderIndex = 0;
     private boolean finished = false;
 
-    public GroupCohesion(ServerLevel level, List<Mob> members) {
+    public GroupCohesion(ServerLevel level, List<Mob> members, BooleanSupplier enabled, IntSupplier radius) {
         this.level = level;
         this.members = new ArrayList<>(members);
+        this.enabled = enabled;
+        this.radius = radius;
     }
 
     public ServerLevel level() {
@@ -47,12 +56,11 @@ public final class GroupCohesion {
             return;
         }
 
-        EncountersConfig config = EncountersConfig.get();
-        if (!config.lightningOverchargeGroupCohesionEnabled) return;
+        if (!enabled.getAsBoolean()) return;
 
         Mob leader = members.get(leaderIndex);
-        double radius = Math.max(1, config.lightningOverchargeGroupCohesionRadius);
-        double radiusSqr = radius * radius;
+        double r = Math.max(1, radius.getAsInt());
+        double radiusSqr = r * r;
 
         Vec3 leaderPos = leader.position();
         for (int i = 0; i < members.size(); i++) {

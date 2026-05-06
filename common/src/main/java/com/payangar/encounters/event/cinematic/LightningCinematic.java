@@ -38,7 +38,7 @@ import java.util.Set;
  * resuming when one returns. Soul-fire-flame particles keep rising from the
  * scorched ground until the last mob falls.</p>
  */
-public final class LightningCinematic {
+public final class LightningCinematic implements Cinematic {
 
     enum Phase { IMPACT, AFTERMATH, FINISHED }
 
@@ -103,11 +103,13 @@ public final class LightningCinematic {
         this.centerBlock = BlockPos.containing(center);
     }
 
+    @Override
     public ServerLevel level() {
         return level;
     }
 
-    public Vec3 center() {
+    @Override
+    public Vec3 anchor() {
         return center;
     }
 
@@ -115,10 +117,12 @@ public final class LightningCinematic {
         spawnedMobs.add(mob);
     }
 
+    @Override
     public boolean isFinished() {
         return phase == Phase.FINISHED;
     }
 
+    @Override
     public void tick() {
         if (ticks == 0) {
             onStart();
@@ -250,21 +254,12 @@ public final class LightningCinematic {
     /**
      * Per-mob identifier particles. Players need a clear signal of which mobs
      * belong to the encounter (i.e. who they must kill to stop the sculk
-     * spread) — we emit wispy soul particles all around each live spawned
-     * mob's bounding box every 3 ticks.
+     * spread) — wispy soul particles emitted around each live spawned mob's
+     * bounding box every 3 ticks.
      */
     private void spawnMobMarkerParticles() {
         if (ticks % 3 != 0) return;
-        RandomSource rng = level.getRandom();
-        for (Entity e : spawnedMobs) {
-            if (!e.isAlive() || e.isRemoved()) continue;
-            AABB bb = e.getBoundingBox();
-            double x = bb.minX + rng.nextDouble() * (bb.maxX - bb.minX);
-            double y = bb.minY + rng.nextDouble() * (bb.maxY - bb.minY);
-            double z = bb.minZ + rng.nextDouble() * (bb.maxZ - bb.minZ);
-            level.sendParticles(ParticleTypes.SOUL,
-                    x, y, z, 1, 0.0, 0.02, 0.0, 0.01);
-        }
+        MobMarkerParticles.emit(level, spawnedMobs, ParticleTypes.SOUL);
     }
 
     private void castImpactShockwave() {

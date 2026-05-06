@@ -25,13 +25,27 @@ public final class EncounterAllies {
 
     private EncounterAllies() {}
 
+    /** Mints a fresh group tag, ready to be applied to one or more mobs. */
+    public static String newGroupTag() {
+        return TAG_PREFIX + UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    /** True when {@code entity} carries any encounter-group tag — i.e. was spawned by an event. */
+    public static boolean isEncounterMob(Entity entity) {
+        if (entity == null) return false;
+        for (String tag : entity.getTags()) {
+            if (tag.startsWith(TAG_PREFIX)) return true;
+        }
+        return false;
+    }
+
     /**
      * Stamps every member of the collection with a fresh shared group tag.
      * Called once per spawned encounter, after all mobs have been added.
      */
     public static void tagGroup(Collection<? extends Mob> members) {
         if (members.isEmpty()) return;
-        String tag = TAG_PREFIX + UUID.randomUUID().toString().substring(0, 8);
+        String tag = newGroupTag();
         for (Mob m : members) {
             m.addTag(tag);
         }
