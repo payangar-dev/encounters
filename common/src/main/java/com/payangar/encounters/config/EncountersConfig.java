@@ -211,21 +211,30 @@ public class EncountersConfig {
 
     private static List<WeightedMob> defaultPortalInvasionMobs() {
         List<WeightedMob> list = new ArrayList<>();
-        // Piglin variants dominate the early waves; nether elites and the
-        // mounted hoglin combos take over as the rarity bias kicks in. Hoglin
-        // appears only as a mount (its Piglin Brute rider doesn't antagonize
-        // it because PiglinBruteAi has no StartHuntingHoglin task — and the
-        // regular Piglin's hunting task is suspended in RIDE activity).
-        // Magma cube and standalone hoglin/zoglin remain excluded for the
-        // reasons documented in CLAUDE.md.
+        // Vanilla nether faction. Crimson / charcoal / dark-gold dyed leather
+        // plus golden, iron and chainmail accents define the army's silhouette,
+        // while a handful of entries stay intentionally bare (Soldier, Marksman,
+        // Berserker, Embercaller, Ashen Marauder, Sovereign) so an invasion is
+        // not a uniform armoured wall. Wave rarity bias (see PortalInvasion
+        // WEIGHT_BOOST_CAP) gradually surfaces the rarer elites and mounted
+        // combos as waves progress. Hoglin appears only as a mount (CLAUDE.md
+        // §15); standalone hoglin/zoglin/magma_cube remain excluded.
         list.add(new WeightedMob("minecraft:piglin", 40, SNBT_PIGLIN_SOLDIER, "Piglin Soldier"));
         list.add(new WeightedMob("minecraft:piglin", 25, SNBT_PIGLIN_MARKSMAN, "Piglin Marksman"));
         list.add(new WeightedMob("minecraft:piglin", 15, SNBT_PIGLIN_SHIELDBEARER, "Piglin Shieldbearer"));
         list.add(new WeightedMob("minecraft:wither_skeleton", 12, SNBT_ASHEN_MARAUDER, "Ashen Marauder"));
+        list.add(new WeightedMob("minecraft:piglin", 10, SNBT_PIGLIN_PYROMANCER, "Piglin Pyromancer"));
         list.add(new WeightedMob("minecraft:blaze", 8, SNBT_EMBERCALLER, "Embercaller"));
+        list.add(new WeightedMob("minecraft:piglin", 8, SNBT_PIGLIN_BERSERKER, "Piglin Berserker"));
+        list.add(new WeightedMob("minecraft:piglin", 6, SNBT_PIGLIN_HEAVY_GUARD, "Piglin Heavy Guard"));
         list.add(new WeightedMob("minecraft:piglin_brute", 5, SNBT_IRONHIDE_BRUTE, "Ironhide Brute"));
+        list.add(new WeightedMob("minecraft:wither_skeleton", 5, SNBT_CINDER_KNIGHT, "Cinder Knight"));
+        list.add(new WeightedMob("minecraft:wither_skeleton", 4, SNBT_ASH_SENTINEL, "Ash Sentinel"));
+        list.add(new WeightedMob("minecraft:zombified_piglin", 4, SNBT_ZOMBIFIED_PIGLIN_WANDERER, "Zombified Piglin Wanderer"));
+        list.add(new WeightedMob("minecraft:piglin_brute", 3, SNBT_GOLDFORGED_BRUTE, "Goldforged Brute"));
         list.add(new WeightedMob("minecraft:hoglin", 3, SNBT_TUSKED_VANGUARD, "Tusked Vanguard"));
         list.add(new WeightedMob("minecraft:hoglin", 2, SNBT_CROSSBOW_OUTRIDER, "Crossbow Outrider"));
+        list.add(new WeightedMob("minecraft:hoglin", 2, SNBT_IRON_CHARGER, "Iron Charger"));
         list.add(new WeightedMob("minecraft:ghast", 1, SNBT_INFERNO_SOVEREIGN, "Inferno Sovereign"));
         return list;
     }
@@ -322,7 +331,7 @@ public class EncountersConfig {
             """;
 
     private static final String SNBT_PIGLIN_SHIELDBEARER = """
-            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:35.0d},{id:"minecraft:generic.knockback_resistance",base:0.5d}],Health:35.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:iron_sword",count:1,components:{"minecraft:enchantments":{sharpness:2}}},{id:"minecraft:shield",count:1}]}\
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:35.0d},{id:"minecraft:generic.knockback_resistance",base:0.5d}],Health:35.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:iron_sword",count:1,components:{"minecraft:enchantments":{sharpness:2}}},{id:"minecraft:shield",count:1}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":10497574,"minecraft:enchantments":{protection:1}}},{}]}\
             """;
 
     private static final String SNBT_ASHEN_MARAUDER = """
@@ -334,23 +343,75 @@ public class EncountersConfig {
             """;
 
     private static final String SNBT_IRONHIDE_BRUTE = """
-            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.scale",base:1.1d},{id:"minecraft:generic.max_health",base:60.0d},{id:"minecraft:generic.knockback_resistance",base:0.4d}],Health:60.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:iron_axe",count:1,components:{"minecraft:enchantments":{sharpness:3}}},{}]}\
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.scale",base:1.1d},{id:"minecraft:generic.max_health",base:60.0d},{id:"minecraft:generic.knockback_resistance",base:0.4d}],Health:60.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:iron_axe",count:1,components:{"minecraft:enchantments":{sharpness:3}}},{}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":1315860,"minecraft:enchantments":{protection:2}}},{id:"minecraft:iron_helmet",count:1,components:{"minecraft:enchantments":{protection:1}}}]}\
             """;
 
     // Mounted: hoglin (mount) + piglin brute rider with iron axe + KB1.
     // PiglinBruteAi has no StartHuntingHoglin task, so no antagonism loop.
     // Banner tag applies to the rider only — the hoglin mount carries no flag.
     private static final String SNBT_TUSKED_VANGUARD = """
-            {attributes:[{id:"minecraft:generic.max_health",base:50.0d},{id:"minecraft:generic.knockback_resistance",base:0.6d}],Health:50.0f,IsImmuneToZombification:1b,Passengers:[{id:"minecraft:piglin_brute",Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.scale",base:1.1d},{id:"minecraft:generic.max_health",base:50.0d}],Health:50.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:iron_axe",count:1,components:{"minecraft:enchantments":{sharpness:2,knockback:1}}},{}]}]}\
+            {attributes:[{id:"minecraft:generic.max_health",base:50.0d},{id:"minecraft:generic.knockback_resistance",base:0.6d}],Health:50.0f,IsImmuneToZombification:1b,Passengers:[{id:"minecraft:piglin_brute",Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.scale",base:1.1d},{id:"minecraft:generic.max_health",base:50.0d}],Health:50.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:iron_axe",count:1,components:{"minecraft:enchantments":{sharpness:2,knockback:1}}},{}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":10497574,"minecraft:enchantments":{protection:2}}},{}]}]}\
             """;
 
     // Mounted: hoglin (mount) + piglin crossbow rider. Regular Piglin's
     // StartHuntingHoglin task is suspended in RIDE activity, so no loop.
     private static final String SNBT_CROSSBOW_OUTRIDER = """
-            {attributes:[{id:"minecraft:generic.max_health",base:45.0d},{id:"minecraft:generic.knockback_resistance",base:0.5d}],Health:45.0f,IsImmuneToZombification:1b,Passengers:[{id:"minecraft:piglin",Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:25.0d}],Health:25.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:crossbow",count:1,components:{"minecraft:enchantments":{quick_charge:2,multishot:1}}},{}]}]}\
+            {attributes:[{id:"minecraft:generic.max_health",base:45.0d},{id:"minecraft:generic.knockback_resistance",base:0.5d}],Health:45.0f,IsImmuneToZombification:1b,Passengers:[{id:"minecraft:piglin",Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:25.0d}],Health:25.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:crossbow",count:1,components:{"minecraft:enchantments":{quick_charge:2,multishot:1}}},{}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":10497574,"minecraft:enchantments":{protection:1}}},{}]}]}\
             """;
 
     private static final String SNBT_INFERNO_SOVEREIGN = """
             {attributes:[{id:"minecraft:generic.scale",base:1.1d},{id:"minecraft:generic.max_health",base:30.0d}],Health:30.0f}\
+            """;
+
+    // dyed_color palette (decimal): 10497574 = #A02E26 crimson red,
+    // 1315860 = #141414 charcoal black, 7227919 = #6E4A0F dark gold.
+
+    // Fire-imbued striker. Permanent fire_resistance shrugs off its own
+    // fire_aspect splashback and incidental lava ticks during pursuit.
+    private static final String SNBT_PIGLIN_PYROMANCER = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:25.0d}],Health:25.0f,IsImmuneToZombification:1b,active_effects:[{id:"minecraft:fire_resistance",amplifier:0b,duration:-1,show_particles:0b}],HandItems:[{id:"minecraft:golden_sword",count:1,components:{"minecraft:enchantments":{sharpness:1,fire_aspect:2}}},{}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":7227919}},{}]}\
+            """;
+
+    // Glass-cannon: no armour, but strength + speed and an enchanted iron axe.
+    // Banner-eligible so it can carry the army colours despite being unarmoured.
+    private static final String SNBT_PIGLIN_BERSERKER = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:25.0d}],Health:25.0f,IsImmuneToZombification:1b,active_effects:[{id:"minecraft:strength",amplifier:0b,duration:-1,show_particles:0b},{id:"minecraft:speed",amplifier:0b,duration:-1,show_particles:0b}],HandItems:[{id:"minecraft:iron_axe",count:1,components:{"minecraft:enchantments":{sharpness:3}}},{}]}\
+            """;
+
+    // Tank piglin: iron helmet + chestplate, KB resistance. Intentionally
+    // NOT banner-eligible so the iron helmet stays as its visual signature
+    // (banner-bearer roll would replace the head slot 30% of the time).
+    private static final String SNBT_PIGLIN_HEAVY_GUARD = """
+            {attributes:[{id:"minecraft:generic.max_health",base:40.0d},{id:"minecraft:generic.knockback_resistance",base:0.5d}],Health:40.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:iron_sword",count:1,components:{"minecraft:enchantments":{sharpness:2}}},{}],ArmorItems:[{},{},{id:"minecraft:iron_chestplate",count:1,components:{"minecraft:enchantments":{protection:2}}},{id:"minecraft:iron_helmet",count:1,components:{"minecraft:enchantments":{protection:1}}}]}\
+            """;
+
+    // Elite brute: full enchanted golden armour and a fire_aspect golden axe.
+    // Slow-burn tank that pairs naturally with the Pyromancer thematically.
+    private static final String SNBT_GOLDFORGED_BRUTE = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.scale",base:1.1d},{id:"minecraft:generic.max_health",base:60.0d},{id:"minecraft:generic.knockback_resistance",base:0.5d}],Health:60.0f,IsImmuneToZombification:1b,HandItems:[{id:"minecraft:golden_axe",count:1,components:{"minecraft:enchantments":{sharpness:3,fire_aspect:1}}},{}],ArmorItems:[{id:"minecraft:golden_boots",count:1,components:{"minecraft:enchantments":{protection:2}}},{id:"minecraft:golden_leggings",count:1,components:{"minecraft:enchantments":{protection:2}}},{id:"minecraft:golden_chestplate",count:1,components:{"minecraft:enchantments":{protection:3}}},{id:"minecraft:golden_helmet",count:1,components:{"minecraft:enchantments":{protection:2}}}]}\
+            """;
+
+    // Heavy wither_skeleton with full chainmail and an iron sword.
+    // Not banner-eligible — banners stay visually a piglin-faction thing.
+    private static final String SNBT_CINDER_KNIGHT = """
+            {attributes:[{id:"minecraft:generic.max_health",base:30.0d}],Health:30.0f,HandItems:[{id:"minecraft:iron_sword",count:1,components:{"minecraft:enchantments":{sharpness:2}}},{}],ArmorItems:[{id:"minecraft:chainmail_boots",count:1},{id:"minecraft:chainmail_leggings",count:1},{id:"minecraft:chainmail_chestplate",count:1,components:{"minecraft:enchantments":{protection:1}}},{id:"minecraft:chainmail_helmet",count:1}]}\
+            """;
+
+    // Skirmisher wither_skeleton: speed I, stone axe, light leather torso.
+    private static final String SNBT_ASH_SENTINEL = """
+            {attributes:[{id:"minecraft:generic.max_health",base:25.0d}],Health:25.0f,active_effects:[{id:"minecraft:speed",amplifier:0b,duration:-1,show_particles:0b}],HandItems:[{id:"minecraft:stone_axe",count:1,components:{"minecraft:enchantments":{sharpness:1}}},{}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":1315860}},{}]}\
+            """;
+
+    // Zombified piglin variant — universal force-aggro (CLAUDE.md §16) bypasses
+    // its vanilla neutrality. Banner-eligible to fold it into the army identity.
+    private static final String SNBT_ZOMBIFIED_PIGLIN_WANDERER = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:25.0d}],Health:25.0f,HandItems:[{id:"minecraft:golden_sword",count:1,components:{"minecraft:enchantments":{sharpness:1}}},{}],ArmorItems:[{},{},{},{id:"minecraft:golden_helmet",count:1}]}\
+            """;
+
+    // Mounted: hoglin (mount) + wither_skeleton rider with iron sword and
+    // chainmail. Wither-skel AI lacks any anti-hoglin task so the pair
+    // doesn't loop. Rider untagged — not part of the banner pool.
+    private static final String SNBT_IRON_CHARGER = """
+            {attributes:[{id:"minecraft:generic.max_health",base:50.0d},{id:"minecraft:generic.knockback_resistance",base:0.5d}],Health:50.0f,IsImmuneToZombification:1b,Passengers:[{id:"minecraft:wither_skeleton",attributes:[{id:"minecraft:generic.max_health",base:30.0d}],Health:30.0f,HandItems:[{id:"minecraft:iron_sword",count:1,components:{"minecraft:enchantments":{sharpness:2}}},{}],ArmorItems:[{},{},{id:"minecraft:chainmail_chestplate",count:1,components:{"minecraft:enchantments":{protection:1}}},{}]}]}\
             """;
 }
