@@ -18,4 +18,8 @@ public class NoOpSpellCompat implements ISpellCompat {
     @Override
     public void castShockwave(ServerLevel level, LivingEntity caster, int spellLevel) {
     }
+
+    @Override
+    public void castMagmaBomb(ServerLevel level, LivingEntity caster, int spellLevel) {
+    }
 }

@@ -28,4 +28,13 @@ final class IronsSpellsDirectCast {
             Constants.LOG.warn("[lightning_overcharge] failed to cast Shockwave", t);
         }
     }
+
+    static void magmaBomb(ServerLevel level, LivingEntity caster, int spellLevel) {
+        try {
+            SpellRegistry.MAGMA_BOMB_SPELL.get()
+                    .onCast(level, spellLevel, caster, CastSource.MOB, null);
+        } catch (Throwable t) {
+            Constants.LOG.warn("[nether_portal_invasion] failed to cast Magma Bomb", t);
+        }
+    }
 }

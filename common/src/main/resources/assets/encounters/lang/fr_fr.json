@@ -62,6 +62,9 @@
     "yacl3.config.encounters:config.netherPortalInvasionMobs": "Pool de mobs",
     "yacl3.config.encounters:config.netherPortalInvasionMobs.desc": "Pool pondéré de mobs pouvant sortir du portail pendant une invasion. Cliquez une entrée pour éditer son id, son poids, son label et son SNBT.",
 
+    "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled": "Barrage de bombes de magma",
+    "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled.desc": "Quand activé et qu'Iron's Spells 'n Spellbooks est chargé, le portail lance périodiquement des sorts Magma Bomb pendant l'invasion. Les bombes suivent une trajectoire en cloche et explosent à l'impact en laissant un champ de feu. Le niveau du sort augmente de +1 par vague (plafonné à 8). Sans effet si le mod est absent.",
+
     "encounters.config.weightedMob.empty": "(entrée vide)",
     "encounters.config.editMob.title": "Édition d'une entrée mob",
     "encounters.config.editMob.category": "Entrée mob",

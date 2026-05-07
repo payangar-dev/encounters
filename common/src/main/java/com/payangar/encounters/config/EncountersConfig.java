@@ -147,6 +147,13 @@ public class EncountersConfig {
     )
     public List<WeightedMob> netherPortalInvasionMobs = defaultPortalInvasionMobs();
 
+    @SerialEntry(comment = "When enabled (and Iron's Spells 'n Spellbooks is loaded), the portal " +
+            "periodically lobs magma bombs out of the gateway during the invasion. " +
+            "Spell level scales +1 per wave, capped at 8. No effect if the mod is absent.")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @TickBox
+    public boolean netherPortalInvasionMagmaBombEnabled = true;
+
     // ===== Access =====
 
     public static EncountersConfig get() {

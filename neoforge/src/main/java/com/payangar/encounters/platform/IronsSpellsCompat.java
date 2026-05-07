@@ -28,4 +28,10 @@ public class IronsSpellsCompat implements ISpellCompat {
         if (!isAvailable()) return;
         IronsSpellsDirectCast.shockwave(level, caster, spellLevel);
     }
+
+    @Override
+    public void castMagmaBomb(ServerLevel level, LivingEntity caster, int spellLevel) {
+        if (!isAvailable()) return;
+        IronsSpellsDirectCast.magmaBomb(level, caster, spellLevel);
+    }
 }

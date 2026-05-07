@@ -11,19 +11,25 @@ import com.payangar.encounters.event.cinematic.MobMarkerParticles;
 import com.payangar.encounters.event.cohesion.GroupCohesion;
 import com.payangar.encounters.event.cohesion.GroupCohesionTicker;
 import com.payangar.encounters.event.portal.PortalGeometry.PortalSite;
+import com.payangar.encounters.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +86,30 @@ public final class PortalInvasion implements Cinematic {
     /** Mobs whose hitbox exceeds this in width or height get spawned further from the portal frame. */
     private static final double LARGE_MOB_THRESHOLD = 3.0;
 
+    /** Interval (ticks) between two magma-bomb casts. */
+    private static final int MAGMA_BOMB_INTERVAL_TICKS = 80;
+    /** Spell level used during wave 1 — each subsequent wave adds +1 up to {@link #MAGMA_BOMB_MAX_LEVEL}. */
+    private static final int MAGMA_BOMB_START_LEVEL = 2;
+    /** Magma-bomb yaw deviation from {@link #spawnFace} (in degrees, both directions). */
+    private static final float MAGMA_BOMB_YAW_JITTER_DEG = 30f;
+    /** Lower bound (degrees) of the upward pitch applied to magma-bomb casts — higher value = closer landings. */
+    private static final float MAGMA_BOMB_PITCH_MIN_DEG = 35f;
+    /** Upper bound (degrees) of the upward pitch applied to magma-bomb casts — steepest, shortest lobs. */
+    private static final float MAGMA_BOMB_PITCH_MAX_DEG = 70f;
+    /** Hard cap on the magma-bomb spell level — Iron's Spells'  MagmaBombSpell tops at 8. */
+    private static final int MAGMA_BOMB_MAX_LEVEL = 8;
+    /** Vertical offset of the caster relative to {@link #anchor} (mid-portal). */
+    private static final double MAGMA_BOMB_CASTER_Y_OFFSET = 1.5;
+    /**
+     * Scoreboard team name used to share the no-friendly-fire flag between
+     * the magma-bomb caster and every invasion mob. Iron's Spells'
+     * {@code DamageSources.isFriendlyFireBetween} (used by both FireBomb
+     * impact and FireField DOT) returns true whenever attacker and target
+     * share a team with {@code allowFriendlyFire = false}, so members of
+     * this team are skipped by both damage paths.
+     */
+    private static final String INVASION_TEAM_NAME = "encounters_inv";
+
     private final ServerLevel level;
     private final PortalSite site;
     private final Direction spawnFace;
@@ -97,6 +127,11 @@ public final class PortalInvasion implements Cinematic {
     private int currentWaveSize = 0;
     private int spawnedThisWave = 0;
     private boolean finished = false;
+
+    /** Invisible armor-stand used as the magma-bomb spell origin. Lazily spawned. */
+    private Entity magmaBombCaster;
+    /** Whether {@link #ensureMagmaBombCaster()} already attempted (success or failure). */
+    private boolean magmaBombCasterAttempted = false;
 
     public PortalInvasion(ServerLevel level, PortalSite site, Direction spawnFace) {
         this.level = level;
@@ -148,6 +183,7 @@ public final class PortalInvasion implements Cinematic {
             case AFTERMATH -> tickAftermath();
             default -> {}
         }
+        maybeCastMagmaBomb();
         phaseTicks++;
     }
 
@@ -351,6 +387,10 @@ public final class PortalInvasion implements Cinematic {
     /**
      * Recursively applies lockdown, persistence, the group tag and wave
      * tracking to an entity and every passenger nested inside it.
+     *
+     * <p>If Iron's Spells is loaded the entity also joins the shared
+     * {@link #INVASION_TEAM_NAME} scoreboard team so the magma-bomb's
+     * {@code isFriendlyFireBetween} check skips damaging it.</p>
      */
     private void registerWaveMember(Entity entity) {
         entity.setInvulnerable(true);
@@ -359,6 +399,9 @@ public final class PortalInvasion implements Cinematic {
             m.setPersistenceRequired();
             m.addTag(groupTag);
             currentWaveMobs.add(m);
+        }
+        if (Services.SPELLS.isAvailable()) {
+            joinInvasionTeam(entity);
         }
         for (Entity p : entity.getPassengers()) {
             registerWaveMember(p);
@@ -611,10 +654,124 @@ public final class PortalInvasion implements Cinematic {
                 SoundEvents.PORTAL_TRAVEL, SoundSource.HOSTILE, 0.4f, pitch);
     }
 
+    // ---------- Magma bomb (Iron's Spells optional compat) ----------
+
+    /**
+     * Periodic outbound magma-bomb cast, gated by config and Iron's Spells'
+     * presence. The portal acts as the spell origin: an invisible armor-stand
+     * caster is spawned lazily on the first tick where casting is needed
+     * (so we pay no cost when the mod is absent or the toggle is off).
+     *
+     * <p>Each cast picks a fresh look direction — the {@link #spawnFace}
+     * baseline plus a random yaw jitter and a random upward pitch — so
+     * consecutive bombs don't all land on the same spot. The bell trajectory
+     * is handled natively by {@code MagmaBombSpell}: its projectile is
+     * gravity-affected and gets a small upward velocity boost on cast, so
+     * the spawnFace + upward pitch we set here translate into a clean arc
+     * landing some distance in front of the portal.</p>
+     *
+     * <p>Spell level scales linearly with the wave number: wave {@code n}
+     * casts at {@code startLevel + (n - 1)}, capped at
+     * {@value #MAGMA_BOMB_MAX_LEVEL} (the spell's hard maximum). Casting is
+     * suspended in {@link Phase#AFTERMATH} and {@link Phase#FINISHED}.</p>
+     */
+    private void maybeCastMagmaBomb() {
+        if (phase == Phase.AFTERMATH || phase == Phase.FINISHED) return;
+        if (!EncountersConfig.get().netherPortalInvasionMagmaBombEnabled) return;
+        if (!Services.SPELLS.isAvailable()) return;
+
+        ensureMagmaBombCaster();
+        if (!(magmaBombCaster instanceof LivingEntity caster)) return;
+
+        if (level.getGameTime() % MAGMA_BOMB_INTERVAL_TICKS != 0) return;
+
+        castMagmaBomb(caster);
+    }
+
+    /**
+     * Lazily spawns the invisible marker armor-stand used as the spell's
+     * caster. The position sits at mid-portal height so the projectile's
+     * spawn point (caster eye + 1 block forward) ends up roughly at the
+     * top of the portal frame, looking like the bomb is being hurled out
+     * of the gateway. Runs at most once per invasion.
+     */
+    private void ensureMagmaBombCaster() {
+        if (magmaBombCasterAttempted) return;
+        magmaBombCasterAttempted = true;
+
+        CompoundTag tag = new CompoundTag();
+        tag.putString("id", "minecraft:armor_stand");
+        tag.putBoolean("Invisible", true);
+        tag.putBoolean("Invulnerable", true);
+        tag.putBoolean("Marker", true);
+        tag.putBoolean("NoBasePlate", true);
+        tag.putBoolean("Silent", true);
+        tag.putBoolean("NoGravity", true);
+
+        Vec3 casterPos = anchor.add(0, MAGMA_BOMB_CASTER_Y_OFFSET, 0);
+        Entity stand = EntityType.loadEntityRecursive(tag, level, e -> {
+            e.moveTo(casterPos.x, casterPos.y, casterPos.z, 0f, 0f);
+            return e;
+        });
+        if (stand == null) {
+            Constants.LOG.warn("[{}] failed to spawn magma bomb caster", NetherPortalInvasionEvent.ID);
+            return;
+        }
+        stand.addTag("encounters_cinematic_caster");
+        level.addFreshEntity(stand);
+        this.magmaBombCaster = stand;
+        joinInvasionTeam(stand);
+        // Catch up any mobs already registered before the caster existed, so
+        // they share the no-FF team starting from the very first cast.
+        for (Mob m : currentWaveMobs) {
+            joinInvasionTeam(m);
+        }
+    }
+
+    /**
+     * Adds {@code entity} to the shared {@link #INVASION_TEAM_NAME} scoreboard
+     * team, creating it on first use. Called for every wave mob and the
+     * magma-bomb caster so Iron's Spells' friendly-fire check skips damage
+     * between them. Only invoked when Iron's Spells is loaded — without it,
+     * the team would just leak names with no benefit.
+     */
+    private void joinInvasionTeam(Entity entity) {
+        Scoreboard scoreboard = level.getScoreboard();
+        PlayerTeam team = scoreboard.getPlayerTeam(INVASION_TEAM_NAME);
+        if (team == null) {
+            team = scoreboard.addPlayerTeam(INVASION_TEAM_NAME);
+            team.setAllowFriendlyFire(false);
+        }
+        scoreboard.addPlayerToTeam(entity.getScoreboardName(), team);
+    }
+
+    private void castMagmaBomb(LivingEntity caster) {
+        RandomSource rng = level.getRandom();
+        float baseYaw = spawnFace.toYRot();
+        float yawJitter = (rng.nextFloat() - 0.5f) * 2f * MAGMA_BOMB_YAW_JITTER_DEG;
+        float pitch = -(MAGMA_BOMB_PITCH_MIN_DEG
+                + rng.nextFloat() * (MAGMA_BOMB_PITCH_MAX_DEG - MAGMA_BOMB_PITCH_MIN_DEG));
+
+        caster.setYRot(baseYaw + yawJitter);
+        caster.setXRot(pitch);
+
+        int wave = Math.max(1, currentWave);
+        int spellLevel = Math.min(MAGMA_BOMB_MAX_LEVEL, MAGMA_BOMB_START_LEVEL + (wave - 1));
+        Services.SPELLS.castMagmaBomb(level, caster, spellLevel);
+    }
+
+    private void discardMagmaBombCaster() {
+        if (magmaBombCaster != null) {
+            magmaBombCaster.discard();
+            magmaBombCaster = null;
+        }
+    }
+
     private void finishAndRelease() {
         if (finished) return;
         finished = true;
         phase = Phase.FINISHED;
+        discardMagmaBombCaster();
         NetherPortalInvasionEvent.releaseLock(this);
     }
 }

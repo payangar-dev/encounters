@@ -21,4 +21,12 @@ public interface ISpellCompat {
      * unavailable.
      */
     void castShockwave(ServerLevel level, LivingEntity caster, int spellLevel);
+
+    /**
+     * Triggers a magma-bomb spell from the caster's position toward its look
+     * direction. The projectile is ballistic (gravity applies), so the caller
+     * controls the arc by setting the caster's yaw / pitch before this call.
+     * No-op when unavailable.
+     */
+    void castMagmaBomb(ServerLevel level, LivingEntity caster, int spellLevel);
 }

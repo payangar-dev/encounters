@@ -62,6 +62,9 @@
     "yacl3.config.encounters:config.netherPortalInvasionMobs": "Mob Pool",
     "yacl3.config.encounters:config.netherPortalInvasionMobs.desc": "Weighted pool of mobs that may spawn from the portal during an invasion. Click an entry to edit its id, weight, label and SNBT.",
 
+    "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled": "Magma Bomb Barrage",
+    "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled.desc": "When enabled and Iron's Spells 'n Spellbooks is loaded, the portal periodically lobs Magma Bomb spells out of the gateway during the invasion. The bombs follow a ballistic arc and explode on impact, leaving a fire field. Spell level scales +1 per wave (capped at 8). No effect when the mod is absent.",
+
     "encounters.config.weightedMob.empty": "(empty entry)",
     "encounters.config.editMob.title": "Edit Mob Entry",
     "encounters.config.editMob.category": "Mob Entry",
