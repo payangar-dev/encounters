@@ -27,6 +27,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
@@ -86,6 +87,9 @@ public final class PortalInvasion implements Cinematic {
 
     /** Mobs whose hitbox exceeds this in width or height get spawned further from the portal frame. */
     private static final double LARGE_MOB_THRESHOLD = 3.0;
+
+    /** Cadence of the portal-integrity check — once per second is enough to feel responsive. */
+    private static final int PORTAL_INTEGRITY_CHECK_INTERVAL_TICKS = 20;
 
     /** Interval (ticks) between two magma-bomb casts. */
     private static final int MAGMA_BOMB_INTERVAL_TICKS = 80;
@@ -183,6 +187,11 @@ public final class PortalInvasion implements Cinematic {
 
     @Override
     public void tick() {
+        if (level.getGameTime() % PORTAL_INTEGRITY_CHECK_INTERVAL_TICKS == 0
+                && !isPortalIntact()) {
+            onPortalBroken();
+            return;
+        }
         suppressPortalTeleportation();
         enforcePortalLeash();
         switch (phase) {
@@ -253,6 +262,33 @@ public final class PortalInvasion implements Cinematic {
         Constants.LOG.info("[{}] invasion abandoned at wave {}/{} (anchor {}, {}, {})",
                 NetherPortalInvasionEvent.ID, currentWave, totalWaves,
                 (int) anchor.x, (int) anchor.y, (int) anchor.z);
+        finishAndRelease();
+    }
+
+    /**
+     * Checks whether the portal anchor block is still a nether portal block.
+     * Vanilla chains neighbour updates so breaking any obsidian frame block
+     * (or enough portal blocks to invalidate the shape) makes the whole
+     * portal extinguish in a single tick — observing the anchor is sufficient
+     * to detect that the portal is no longer functional.
+     */
+    private boolean isPortalIntact() {
+        return level.getBlockState(anchorKey).is(Blocks.NETHER_PORTAL);
+    }
+
+    /**
+     * Stops the invasion early because the portal frame was broken. Mobs
+     * already spawned remain alive (consistent with {@link #onAbandoned()})
+     * so the player still has to deal with the threat they let through —
+     * but no further waves spawn, the magma-bomb caster is discarded and
+     * the lock is released so a new invasion can eventually trigger.
+     */
+    private void onPortalBroken() {
+        if (finished) return;
+        releaseWaveLockdown();
+        Constants.LOG.info("[{}] invasion stopped at wave {}/{} — portal broken (anchor {}, {}, {})",
+                NetherPortalInvasionEvent.ID, currentWave, totalWaves,
+                anchorKey.getX(), anchorKey.getY(), anchorKey.getZ());
         finishAndRelease();
     }
 
