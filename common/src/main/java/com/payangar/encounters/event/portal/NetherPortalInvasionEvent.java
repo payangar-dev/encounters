@@ -7,10 +7,13 @@ import com.payangar.encounters.event.MobRoster;
 import com.payangar.encounters.event.cinematic.CinematicTicker;
 import com.payangar.encounters.event.portal.PortalGeometry.PortalSite;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.List;
 
@@ -29,6 +32,21 @@ import java.util.List;
 public final class NetherPortalInvasionEvent {
 
     public static final String ID = "nether_portal_invasion";
+
+    /**
+     * Loot table rolled when an invasion is fully completed (all waves
+     * cleared, AFTERMATH phase reached). The bundled default at
+     * {@code data/encounters/loot_table/portal_invasion/reward.json} delegates
+     * to vanilla nether loot tables ({@code bastion_*}, {@code nether_bridge}),
+     * so any mod that injects entries into those tables (NeoForge GLM,
+     * Fabric loot table events, datapack overrides) automatically appears
+     * in the portal invasion rewards without configuration. Surcharger ce
+     * chemin via datapack remplace entièrement la table.
+     */
+    public static final ResourceKey<LootTable> REWARD_LOOT_TABLE = ResourceKey.create(
+            Registries.LOOT_TABLE,
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "portal_invasion/reward")
+    );
 
     /**
      * Curated banner themes for the nether faction. One is rolled per

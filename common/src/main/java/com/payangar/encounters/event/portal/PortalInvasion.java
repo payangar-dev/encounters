@@ -27,13 +27,16 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.IntUnaryOperator;
@@ -85,6 +88,32 @@ public final class PortalInvasion implements Cinematic {
     /** Cap multiplier on the wave weight transform — adjusted weight ≤ base × this. */
     private static final double WEIGHT_BOOST_CAP = 4.0;
 
+    /**
+     * Cadence of the reward emission during AFTERMATH — one item every N
+     * server ticks. 12 ticks ≈ 1.6 items per second: slow enough to feel
+     * each drop as a distinct event rather than a machine-gun spray.
+     */
+    private static final int REWARD_EMIT_INTERVAL_TICKS = 12;
+    /**
+     * Pause between the last wave being cleared and the first reward being
+     * emitted. Gives the player a clear beat to register the victory
+     * before the portal starts spitting out loot.
+     */
+    private static final int REWARD_INITIAL_DELAY_TICKS = 40;
+    /** Hard cap on the number of reward stacks emitted at the end of any invasion. */
+    private static final int MAX_REWARD_STACKS = 12;
+    /** Floor — every successful invasion yields at least this many stacks. */
+    private static final int MIN_REWARD_STACKS = 2;
+    /**
+     * Approximate stacks yielded by a single roll of the reward loot table
+     * (i.e. one vanilla nether sub-table — bastion variants or nether
+     * bridge). Used to size the sample pool with some headroom before
+     * trimming down to the wanted count.
+     */
+    private static final int APPROX_STACKS_PER_ROLL = 5;
+    /** Safety cap on extra refill rolls when the initial pool is short of {@code wanted}. */
+    private static final int REWARD_REFILL_ROLLS_CAP = 5;
+
     /** Mobs whose hitbox exceeds this in width or height get spawned further from the portal frame. */
     private static final double LARGE_MOB_THRESHOLD = 3.0;
 
@@ -125,6 +154,13 @@ public final class PortalInvasion implements Cinematic {
     private final String groupTag;
     private final BannerArmy bannerArmy;
     private final List<Mob> currentWaveMobs = new ArrayList<>();
+    /**
+     * Reward stacks queued at the COMBAT→AFTERMATH transition (success path
+     * only) and drained one-by-one during {@link #tickAftermath()}. Empty
+     * when the invasion has just started or when no rewards have been
+     * rolled yet.
+     */
+    private final Deque<ItemStack> pendingRewards = new ArrayDeque<>();
 
     private Phase phase = Phase.BUILDUP;
     private int phaseTicks = 0;
@@ -133,6 +169,14 @@ public final class PortalInvasion implements Cinematic {
     private int currentWaveSize = 0;
     private int spawnedThisWave = 0;
     private boolean finished = false;
+    /**
+     * Counter that runs only after {@link #pendingRewards} has been fully
+     * drained. The AFTERMATH phase ends once this reaches
+     * {@link #AFTERMATH_TICKS}, guaranteeing at least that much calm tail
+     * after the last reward — independent of how long the queue took
+     * to drain.
+     */
+    private int rewardTailTicks = 0;
 
     /** Invisible armor-stand used as the magma-bomb spell origin. Lazily spawned. */
     private Entity magmaBombCaster;
@@ -350,6 +394,7 @@ public final class PortalInvasion implements Cinematic {
             combatGraceTicks++;
             if (combatGraceTicks >= WAVE_GRACE_TICKS) {
                 if (currentWave >= totalWaves) {
+                    grantRewards();
                     phase = Phase.AFTERMATH;
                     phaseTicks = 0;
                 } else {
@@ -361,10 +406,80 @@ public final class PortalInvasion implements Cinematic {
         }
     }
 
+    /**
+     * Rolls the completion rewards and queues them for staggered emission
+     * during {@link #tickAftermath()}. Only invoked on the success path
+     * (last wave cleared and grace period elapsed) — the abandonment and
+     * portal-broken paths short-circuit before AFTERMATH and therefore
+     * yield no loot. The number of rolls equals {@link #totalWaves}, so
+     * a longer invasion is more rewarding.
+     */
+    private void grantRewards() {
+        Vec3 origin = anchor.add(0, 1.5, 0);
+        RandomSource rng = level.getRandom();
+
+        // Wanted-count formula. Linear from MIN_REWARD_STACKS at low wave
+        // counts up to MAX_REWARD_STACKS, with a random spread inside that
+        // range so the reward isn't deterministic. Tuned so:
+        //   4 waves → [4, 6]
+        //   5 waves → [5, 8]
+        //   6 waves → [6, 10]
+        //   7 waves → [7, 12]
+        //   8+ waves → [waves capped, 12]
+        int waves = Math.max(2, totalWaves);
+        int minStacks = Math.min(MAX_REWARD_STACKS,
+                Math.max(MIN_REWARD_STACKS, waves));
+        int maxStacks = Math.min(MAX_REWARD_STACKS,
+                Math.max(minStacks, 2 * (waves - 1)));
+        int wanted = minStacks + (maxStacks > minStacks
+                ? rng.nextInt(maxStacks - minStacks + 1) : 0);
+
+        // Roll the loot table enough times to produce a pool with some
+        // headroom, then sample {@code wanted} stacks uniformly from it.
+        // Sampling preserves the rolled distribution: a rare item only
+        // exists in the pool when its parent sub-table actually rolled it,
+        // and is then carried through with its share of the trim.
+        int rolls = Math.max(1,
+                (wanted + APPROX_STACKS_PER_ROLL - 1) / APPROX_STACKS_PER_ROLL);
+        List<ItemStack> pool = new ArrayList<>(PortalRewards.roll(level, origin, rolls));
+        int refills = 0;
+        while (pool.size() < wanted && refills++ < REWARD_REFILL_ROLLS_CAP) {
+            List<ItemStack> extra = PortalRewards.roll(level, origin, 1);
+            if (extra.isEmpty()) break;
+            pool.addAll(extra);
+        }
+
+        while (!pool.isEmpty() && pendingRewards.size() < wanted) {
+            int idx = rng.nextInt(pool.size());
+            pendingRewards.addLast(pool.remove(idx));
+        }
+
+        Constants.LOG.info("[{}] {} reward stacks queued (target {} in [{},{}] for {} waves)",
+                NetherPortalInvasionEvent.ID, pendingRewards.size(), wanted,
+                minStacks, maxStacks, totalWaves);
+    }
+
     private void tickAftermath() {
         emitPortalSparks();
-        if (phaseTicks >= AFTERMATH_TICKS) {
-            finishAndRelease();
+        if (!pendingRewards.isEmpty()) {
+            // Hold off emission for the initial delay so the player has a
+            // beat between the last kill and the first drop. Once the delay
+            // has elapsed, emit one stack every REWARD_EMIT_INTERVAL_TICKS.
+            int sinceDelay = phaseTicks - REWARD_INITIAL_DELAY_TICKS;
+            if (sinceDelay >= 0 && sinceDelay % REWARD_EMIT_INTERVAL_TICKS == 0) {
+                ItemStack stack = pendingRewards.poll();
+                if (stack != null && !stack.isEmpty()) {
+                    PortalRewards.eject(level, anchor.add(0, 1.5, 0), spawnFace, stack);
+                }
+            }
+            // Reset the tail timer as long as items are still being emitted —
+            // the calm-tail window starts only once the queue is drained.
+            rewardTailTicks = 0;
+        } else {
+            rewardTailTicks++;
+            if (rewardTailTicks >= AFTERMATH_TICKS) {
+                finishAndRelease();
+            }
         }
     }
 
