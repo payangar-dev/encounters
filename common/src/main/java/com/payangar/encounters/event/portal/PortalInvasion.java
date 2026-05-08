@@ -11,6 +11,7 @@ import com.payangar.encounters.event.cinematic.MobMarkerParticles;
 import com.payangar.encounters.event.cohesion.GroupCohesion;
 import com.payangar.encounters.event.cohesion.GroupCohesionTicker;
 import com.payangar.encounters.event.portal.PortalGeometry.PortalSite;
+import com.payangar.encounters.network.EncountersNetwork;
 import com.payangar.encounters.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -114,6 +115,7 @@ public final class PortalInvasion implements Cinematic {
     private final PortalSite site;
     private final Direction spawnFace;
     private final Vec3 anchor;
+    private final BlockPos anchorKey;
     private final Vec3 leashAnchor;
     private final int totalWaves;
     private final String groupTag;
@@ -138,6 +140,7 @@ public final class PortalInvasion implements Cinematic {
         this.site = site;
         this.spawnFace = spawnFace;
         this.anchor = site.centerBase();
+        this.anchorKey = PortalGeometry.anchorKey(site);
         // Leash anchor sits one block in front of the portal so pulled-back
         // mobs end up on the spawn side rather than potentially behind the frame.
         this.leashAnchor = PortalGeometry.spawnAnchor(site, spawnFace);
@@ -151,6 +154,12 @@ public final class PortalInvasion implements Cinematic {
         int min = Math.max(1, config.netherPortalInvasionMinWaves);
         int max = Math.max(min, config.netherPortalInvasionMaxWaves);
         this.totalWaves = min + level.getRandom().nextInt(max - min + 1);
+
+        // Notify clients in this level that the portal should glow red
+        // for the duration of the invasion. The list of portal blocks
+        // is captured now (frame intact) — if a block is broken later
+        // the client renderer skips it via a runtime block-state check.
+        EncountersNetwork.sendInvasionStart(level, anchorKey, PortalGeometry.portalBlocks(level, site));
     }
 
     public int totalWaves() {
@@ -772,6 +781,7 @@ public final class PortalInvasion implements Cinematic {
         finished = true;
         phase = Phase.FINISHED;
         discardMagmaBombCaster();
+        EncountersNetwork.sendInvasionEnd(level, anchorKey);
         NetherPortalInvasionEvent.releaseLock(this);
     }
 }

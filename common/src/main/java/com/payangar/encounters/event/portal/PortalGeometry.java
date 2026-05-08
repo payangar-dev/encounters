@@ -36,6 +36,53 @@ public final class PortalGeometry {
     public record PortalSite(Vec3 centerBase, Direction.Axis axis, int width) {}
 
     /**
+     * Walks the frame from {@code site}'s bottom row upward in every
+     * column and collects every block that is still a {@link Blocks#NETHER_PORTAL}.
+     * Used by the network sync to tell clients which blocks to glow red.
+     */
+    public static java.util.List<BlockPos> portalBlocks(ServerLevel level, PortalSite site) {
+        Direction.Axis axis = site.axis();
+        int baseY = (int) Math.floor(site.centerBase().y);
+        double centerCoord = axis == Direction.Axis.X ? site.centerBase().x : site.centerBase().z;
+        int minAxis = (int) Math.floor(centerCoord - site.width() / 2.0);
+        int otherCoord = axis == Direction.Axis.X
+                ? (int) Math.floor(site.centerBase().z)
+                : (int) Math.floor(site.centerBase().x);
+
+        java.util.List<BlockPos> result = new java.util.ArrayList<>();
+        for (int i = 0; i < site.width(); i++) {
+            int axisVal = minAxis + i;
+            int x = axis == Direction.Axis.X ? axisVal : otherCoord;
+            int z = axis == Direction.Axis.Z ? axisVal : otherCoord;
+            for (int dy = 0; dy < MAX_PORTAL_DIM; dy++) {
+                BlockPos p = new BlockPos(x, baseY + dy, z);
+                if (!level.getBlockState(p).is(Blocks.NETHER_PORTAL)) break;
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Stable per-invasion identifier — the bottom-most, smallest-axis
+     * portal block. Both server and client derive it the same way from
+     * {@code site}, so an invasion sent over the wire can be matched
+     * against its end-of-life packet without round-trip state.
+     */
+    public static BlockPos anchorKey(PortalSite site) {
+        Direction.Axis axis = site.axis();
+        int baseY = (int) Math.floor(site.centerBase().y);
+        double centerCoord = axis == Direction.Axis.X ? site.centerBase().x : site.centerBase().z;
+        int minAxis = (int) Math.floor(centerCoord - site.width() / 2.0);
+        int otherCoord = axis == Direction.Axis.X
+                ? (int) Math.floor(site.centerBase().z)
+                : (int) Math.floor(site.centerBase().x);
+        int x = axis == Direction.Axis.X ? minAxis : otherCoord;
+        int z = axis == Direction.Axis.Z ? minAxis : otherCoord;
+        return new BlockPos(x, baseY, z);
+    }
+
+    /**
      * Searches a cube of half-side {@code radius} around {@code from} for the
      * closest nether portal block. Returns empty if none found within range.
      */

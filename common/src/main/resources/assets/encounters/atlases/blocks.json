@@ -1,0 +1,8 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "encounters:block/nether_portal_red"
+    }
+  ]
+}

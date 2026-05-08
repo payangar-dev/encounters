@@ -9,7 +9,9 @@
         "MobSetTargetMixin",
         "PiglinAiKeepFightingMixin"
     ],
-    "client": [],
+    "client": [
+        "client.BlockRenderDispatcherMixin"
+    ],
     "server": [],
     "injectors": {
         "defaultRequire": 1
