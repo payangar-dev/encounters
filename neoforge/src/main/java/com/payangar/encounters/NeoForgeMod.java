@@ -5,10 +5,8 @@ import com.payangar.encounters.client.NeoForgeEncountersClient;
 import com.payangar.encounters.command.EncountersCommands;
 import com.payangar.encounters.config.ConfigScreenBuilder;
 import com.payangar.encounters.event.NeoForgeLightningListener;
-import com.payangar.encounters.network.EncountersNetwork;
 import com.payangar.encounters.network.InvasionEndPayload;
 import com.payangar.encounters.network.InvasionStartPayload;
-import com.payangar.encounters.network.NeoForgePortalSyncDispatcher;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -29,7 +27,6 @@ public class NeoForgeMod {
         Constants.LOG.info("Initializing {} on NeoForge", Constants.MOD_NAME);
         Encounters.init();
         modEventBus.addListener(NeoForgeMod::onRegisterPayloads);
-        EncountersNetwork.setDispatcher(new NeoForgePortalSyncDispatcher());
         NeoForgeLightningListener.register(NeoForge.EVENT_BUS);
         NeoForge.EVENT_BUS.addListener(NeoForgeMod::onRegisterCommands);
 

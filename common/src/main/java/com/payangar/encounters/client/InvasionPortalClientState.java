@@ -3,6 +3,7 @@ package com.payangar.encounters.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 
 import java.util.HashMap;
@@ -118,11 +119,10 @@ public final class InvasionPortalClientState {
         LevelRenderer renderer = mc.levelRenderer;
         Set<Long> seen = new HashSet<>();
         for (BlockPos pos : positions) {
-            int sx = pos.getX() >> 4;
-            int sy = pos.getY() >> 4;
-            int sz = pos.getZ() >> 4;
-            long key = (((long) sx) << 42) | (((long) sy & 0xFFFFFFFL) << 21) | ((long) sz & 0x1FFFFFL);
-            if (seen.add(key)) {
+            int sx = SectionPos.blockToSectionCoord(pos.getX());
+            int sy = SectionPos.blockToSectionCoord(pos.getY());
+            int sz = SectionPos.blockToSectionCoord(pos.getZ());
+            if (seen.add(SectionPos.asLong(sx, sy, sz))) {
                 renderer.setSectionDirty(sx, sy, sz);
             }
         }

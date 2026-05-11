@@ -1,6 +1,7 @@
 package com.payangar.encounters.event.cinematic;
 
 import com.payangar.encounters.Constants;
+import com.payangar.encounters.event.ally.EncounterAllies;
 import com.payangar.encounters.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -94,6 +95,8 @@ public final class LightningCinematic implements Cinematic {
     private int ticks = 0;
     private int groundIdx = 0;
     private int aftermathTicks = 0;
+    /** Scoreboard team name shared by every spawned mob. Set by the event before the cinematic is started. */
+    private String groupName;
 
     private record GroundSlot(BlockPos pos, double distance) {}
 
@@ -101,6 +104,11 @@ public final class LightningCinematic implements Cinematic {
         this.level = level;
         this.center = center;
         this.centerBlock = BlockPos.containing(center);
+    }
+
+    /** Stores the team name so it can be disbanded at teardown. */
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     @Override
@@ -120,6 +128,18 @@ public final class LightningCinematic implements Cinematic {
     @Override
     public boolean isFinished() {
         return phase == Phase.FINISHED;
+    }
+
+    @Override
+    public void onAbandoned() {
+        disbandGroup();
+    }
+
+    private void disbandGroup() {
+        if (groupName != null) {
+            EncounterAllies.disbandGroup(level, groupName);
+            groupName = null;
+        }
     }
 
     @Override
@@ -289,6 +309,7 @@ public final class LightningCinematic implements Cinematic {
     private void tickAftermath() {
         spawnedMobs.removeIf(e -> !e.isAlive() || e.isRemoved());
         if (spawnedMobs.isEmpty()) {
+            disbandGroup();
             phase = Phase.FINISHED;
             return;
         }

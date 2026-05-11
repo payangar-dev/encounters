@@ -4,6 +4,7 @@ import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.EncountersConfig;
 import com.payangar.encounters.config.WeightedMob;
 import com.payangar.encounters.event.MobRoster;
+import com.payangar.encounters.event.banner.BannerArmy;
 import com.payangar.encounters.event.cinematic.CinematicTicker;
 import com.payangar.encounters.event.portal.PortalGeometry.PortalSite;
 import net.minecraft.core.Direction;
@@ -154,7 +155,24 @@ public final class NetherPortalInvasionEvent {
         }
     }
 
-    static MobRoster roster(EncountersConfig config) {
+    /** Drops the global lock unconditionally. Used at server stop. */
+    public static synchronized void releaseAll() {
+        if (currentInvasion != null) {
+            Constants.LOG.info("[{}] dropping invasion at server stop", ID);
+            currentInvasion = null;
+        }
+        lastInvasionEndTick = Long.MIN_VALUE;
+    }
+
+    /** Drops the lock if it currently holds an invasion bound to {@code level}. Used at level unload. */
+    public static synchronized void releaseLevel(ServerLevel level) {
+        if (currentInvasion != null && currentInvasion.level() == level) {
+            Constants.LOG.info("[{}] dropping invasion at level unload ({})", ID, level.dimension().location());
+            currentInvasion = null;
+        }
+    }
+
+    public static MobRoster roster(EncountersConfig config) {
         if (cachedRoster == null || cachedSource != config.netherPortalInvasionMobs) {
             cachedRoster = MobRoster.resolve(config.netherPortalInvasionMobs, ID);
             cachedSource = config.netherPortalInvasionMobs;

@@ -30,6 +30,16 @@ public final class GroupCohesionTicker {
         ACTIVE.add(group);
     }
 
+    /** Drops every active group cohesion tracker. Used at server stop. */
+    public static void clear() {
+        ACTIVE.clear();
+    }
+
+    /** Drops every cohesion tracker bound to the given level. Used at level unload. */
+    public static void clearLevel(ServerLevel level) {
+        ACTIVE.removeIf(g -> g.level() == level);
+    }
+
     private static void onLevelTick(ServerLevel level) {
         if (ACTIVE.isEmpty()) return;
         if (level.getGameTime() % TICK_INTERVAL != 0) return;

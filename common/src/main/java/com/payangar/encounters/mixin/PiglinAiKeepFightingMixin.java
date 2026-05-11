@@ -58,7 +58,13 @@ public abstract class PiglinAiKeepFightingMixin {
             return;
         }
 
-        // Nothing to fight: fall through to vanilla — it will return empty
-        // and the FIGHT activity will legitimately end.
+        // No player available either. Vanilla's fall-through would consult
+        // NEAREST_VISIBLE_NEMESIS, which can return a wither_skeleton — and
+        // the encounter often spawns wither_skeletons as allies (Cinder Knight,
+        // Ash Sentinel, Iron Charger rider). Returning empty keeps the FIGHT
+        // activity from acquiring an ally as target. The MobSetTargetMixin /
+        // LivingEntityCanAttackMixin catch the same case if it slips through
+        // another path, this is just the most direct fix.
+        cir.setReturnValue(Optional.empty());
     }
 }

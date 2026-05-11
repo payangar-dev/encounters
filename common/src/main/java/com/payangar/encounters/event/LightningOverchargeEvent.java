@@ -125,10 +125,11 @@ public final class LightningOverchargeEvent {
         }
 
         if (spawned > 0) {
-            // Allied tagging: members share a group tag so the Mob#setTarget
-            // mixin can veto any targeting between them — no intra-group
-            // retaliation even after friendly-fire AoE or stray arrows.
-            EncounterAllies.tagGroup(groupMembers);
+            // Allied scoreboard team: members share a team with allowFriendlyFire=false.
+            // Vanilla LivingEntity#canAttack consults the team via isAlliedTo, so no
+            // intra-group retaliation can land — neither from goal-driven AI nor brain AI.
+            String groupName = EncounterAllies.formGroup(level, groupMembers);
+            cinematic.setGroupName(groupName);
             CinematicTicker.start(cinematic);
             if (groupMembers.size() >= 2) {
                 GroupCohesionTicker.start(new GroupCohesion(level, groupMembers,
@@ -159,16 +160,17 @@ public final class LightningOverchargeEvent {
     }
 
     /**
-     * Picks a random position within {@link #SPAWN_RADIUS} whose block column
-     * has not been claimed yet by another mob in the same group (nor by the
-     * reserved center column). Returns {@code null} if no free column was
-     * found within {@link #MAX_PLACEMENT_ATTEMPTS} — the caller should skip
-     * that mob rather than stack it on top of an existing one.
+     * Picks a random position uniformly distributed inside the disk of radius
+     * {@link #SPAWN_RADIUS} (using {@code r = SPAWN_RADIUS * sqrt(rng)} to
+     * counter the radial bias of a naïve {@code r = rng * SPAWN_RADIUS}),
+     * skipping columns already claimed by another mob in the same group or
+     * by the reserved center column. Returns {@code null} if no free column
+     * was found within {@link #MAX_PLACEMENT_ATTEMPTS}.
      */
     private static Vec3 findFreeSpawnPos(Vec3 center, RandomSource rng, Set<Long> usedColumns) {
         for (int attempt = 0; attempt < MAX_PLACEMENT_ATTEMPTS; attempt++) {
             double angle = rng.nextDouble() * Math.PI * 2.0;
-            double r = rng.nextDouble() * SPAWN_RADIUS;
+            double r = SPAWN_RADIUS * Math.sqrt(rng.nextDouble());
             double x = center.x + Math.cos(angle) * r;
             double z = center.z + Math.sin(angle) * r;
             if (usedColumns.add(columnKey(x, z))) {

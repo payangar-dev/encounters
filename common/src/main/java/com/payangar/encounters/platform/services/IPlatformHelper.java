@@ -1,5 +1,6 @@
 package com.payangar.encounters.platform.services;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Mob;
@@ -28,4 +29,18 @@ public interface IPlatformHelper {
      * Used by the cinematic ticker to advance active encounters.
      */
     void registerServerLevelTickListener(Consumer<ServerLevel> listener);
+
+    /**
+     * Register a callback fired when the server is shutting down. Used to
+     * clear process-wide state (active cinematics, group cohesion trackers,
+     * invasion locks) so the next server start has a clean slate.
+     */
+    void registerServerStoppingListener(Consumer<MinecraftServer> listener);
+
+    /**
+     * Register a callback fired when a level is unloaded. Used to drop
+     * any per-level state still held by global statics so we don't leak a
+     * dangling reference to a dead {@link ServerLevel}.
+     */
+    void registerServerLevelUnloadListener(Consumer<ServerLevel> listener);
 }

@@ -1,6 +1,7 @@
 package com.payangar.encounters.platform;
 
 import com.payangar.encounters.Constants;
+import com.payangar.encounters.platform.services.INetworkBridge;
 import com.payangar.encounters.platform.services.IPlatformHelper;
 import com.payangar.encounters.platform.services.ISpellCompat;
 
@@ -10,6 +11,7 @@ public final class Services {
 
     public static final IPlatformHelper PLATFORM = load(IPlatformHelper.class);
     public static final ISpellCompat SPELLS = load(ISpellCompat.class);
+    public static final INetworkBridge NETWORK = load(INetworkBridge.class);
 
     private static <T> T load(Class<T> clazz) {
         T service = ServiceLoader.load(clazz)

@@ -2,8 +2,6 @@ package com.payangar.encounters;
 
 import com.payangar.encounters.command.EncountersCommands;
 import com.payangar.encounters.event.FabricLightningListener;
-import com.payangar.encounters.network.EncountersNetwork;
-import com.payangar.encounters.network.FabricPortalSyncDispatcher;
 import com.payangar.encounters.network.InvasionEndPayload;
 import com.payangar.encounters.network.InvasionStartPayload;
 import net.fabricmc.api.ModInitializer;
@@ -17,7 +15,6 @@ public class FabricMod implements ModInitializer {
         Constants.LOG.info("Initializing {} on Fabric", Constants.MOD_NAME);
         Encounters.init();
         registerPayloads();
-        EncountersNetwork.setDispatcher(new FabricPortalSyncDispatcher());
         FabricLightningListener.register();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
                 EncountersCommands.register(dispatcher));

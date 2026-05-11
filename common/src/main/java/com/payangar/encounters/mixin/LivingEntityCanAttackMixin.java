@@ -9,13 +9,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Backstop for the allies system: vetoes any {@code canAttack} check between
- * two members of the same encounter group. The {@link MobSetTargetMixin}
- * already handles the goal-driven path (HurtByTargetGoal, NearestAttackable
- * TargetGoal, etc.), but Brain-based mobs (piglins, hoglins, axolotls…) set
- * their {@code ATTACK_TARGET} memory directly without going through
- * {@code Mob#setTarget}. Almost every brain task does still call
- * {@code canAttack} to validate a candidate, so a HEAD-cancel here closes
- * that loophole.
+ * two members of the same encounter group. {@link MobSetTargetMixin} catches
+ * the goal-driven path, but Brain-based mobs (piglins, hoglins, axolotls...)
+ * set their {@code ATTACK_TARGET} memory directly without going through
+ * {@code Mob#setTarget}; almost every brain task still validates a candidate
+ * via {@code canAttack}, so a HEAD-cancel here closes that loophole.
  */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityCanAttackMixin {

@@ -2,8 +2,7 @@ package com.payangar.encounters.config;
 
 import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.gui.WeightedMobListFactory;
-import com.payangar.encounters.event.LightningOverchargeEvent;
-import com.payangar.encounters.event.portal.NetherPortalInvasionEvent;
+import com.payangar.encounters.event.EncounterRegistry;
 import com.payangar.encounters.platform.Services;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
@@ -167,46 +166,64 @@ public class EncountersConfig {
     public static void load() {
         HANDLER.load();
         sanitize(HANDLER.instance());
-        LightningOverchargeEvent.invalidateRoster();
-        NetherPortalInvasionEvent.invalidateRoster();
+        EncounterRegistry.invalidateAll();
         Constants.LOG.info("Loaded {} config from {}.json5", Constants.MOD_NAME, Constants.MOD_ID);
     }
 
     public static void save() {
         sanitize(HANDLER.instance());
         HANDLER.save();
-        LightningOverchargeEvent.invalidateRoster();
-        NetherPortalInvasionEvent.invalidateRoster();
+        EncounterRegistry.invalidateAll();
     }
 
+    /**
+     * Clamps every config field to a safe range on load. Direct edits to the
+     * JSON5 file can sneak past YACL's GUI bounds — this is the last line of
+     * defence before gameplay code reads the value. Each correction is logged
+     * at WARN so admins can spot stale config files.
+     */
     private static void sanitize(EncountersConfig config) {
-        if (config.lightningOverchargeChance < 0.0 || config.lightningOverchargeChance > 1.0) {
-            Constants.LOG.warn("lightningOverchargeChance was {}, clamped to [0, 1]", config.lightningOverchargeChance);
-            config.lightningOverchargeChance = Math.max(0.0, Math.min(1.0, config.lightningOverchargeChance));
+        config.lightningOverchargeChance = clampDouble("lightningOverchargeChance",
+                config.lightningOverchargeChance, 0.0, 1.0);
+        config.lightningOverchargeGroupMin = clampInt("lightningOverchargeGroupMin",
+                config.lightningOverchargeGroupMin, 1, Integer.MAX_VALUE);
+        config.lightningOverchargeGroupMax = clampInt("lightningOverchargeGroupMax",
+                config.lightningOverchargeGroupMax, config.lightningOverchargeGroupMin, Integer.MAX_VALUE);
+        config.lightningOverchargeGroupCohesionRadius = clampInt("lightningOverchargeGroupCohesionRadius",
+                config.lightningOverchargeGroupCohesionRadius, 1, Integer.MAX_VALUE);
+
+        config.netherPortalInvasionTriggerChance = clampDouble("netherPortalInvasionTriggerChance",
+                config.netherPortalInvasionTriggerChance, 0.0, 1.0);
+        config.netherPortalInvasionMinWaves = clampInt("netherPortalInvasionMinWaves",
+                config.netherPortalInvasionMinWaves, 1, Integer.MAX_VALUE);
+        config.netherPortalInvasionMaxWaves = clampInt("netherPortalInvasionMaxWaves",
+                config.netherPortalInvasionMaxWaves, config.netherPortalInvasionMinWaves, Integer.MAX_VALUE);
+        config.netherPortalInvasionFirstWaveSize = clampInt("netherPortalInvasionFirstWaveSize",
+                config.netherPortalInvasionFirstWaveSize, 1, Integer.MAX_VALUE);
+        config.netherPortalInvasionWaveSizeStep = clampInt("netherPortalInvasionWaveSizeStep",
+                config.netherPortalInvasionWaveSizeStep, 0, Integer.MAX_VALUE);
+        config.netherPortalInvasionScanIntervalTicks = clampInt("netherPortalInvasionScanIntervalTicks",
+                config.netherPortalInvasionScanIntervalTicks, 20, Integer.MAX_VALUE);
+        config.netherPortalInvasionPortalCooldownTicks = clampInt("netherPortalInvasionPortalCooldownTicks",
+                config.netherPortalInvasionPortalCooldownTicks, 1200, Integer.MAX_VALUE);
+        config.netherPortalInvasionGroupCohesionRadius = clampInt("netherPortalInvasionGroupCohesionRadius",
+                config.netherPortalInvasionGroupCohesionRadius, 1, Integer.MAX_VALUE);
+    }
+
+    private static int clampInt(String name, int value, int min, int max) {
+        int clamped = Math.max(min, Math.min(max, value));
+        if (clamped != value) {
+            Constants.LOG.warn("config field {} was {}, clamped to [{}, {}]", name, value, min, max);
         }
-        if (config.lightningOverchargeGroupMin < 1) config.lightningOverchargeGroupMin = 1;
-        if (config.lightningOverchargeGroupMax < config.lightningOverchargeGroupMin) {
-            config.lightningOverchargeGroupMax = config.lightningOverchargeGroupMin;
+        return clamped;
+    }
+
+    private static double clampDouble(String name, double value, double min, double max) {
+        double clamped = Math.max(min, Math.min(max, value));
+        if (clamped != value) {
+            Constants.LOG.warn("config field {} was {}, clamped to [{}, {}]", name, value, min, max);
         }
-        if (config.lightningOverchargeGroupCohesionRadius < 1) {
-            config.lightningOverchargeGroupCohesionRadius = 1;
-        }
-        if (config.netherPortalInvasionTriggerChance < 0.0 || config.netherPortalInvasionTriggerChance > 1.0) {
-            Constants.LOG.warn("netherPortalInvasionTriggerChance was {}, clamped to [0, 1]",
-                    config.netherPortalInvasionTriggerChance);
-            config.netherPortalInvasionTriggerChance = Math.max(0.0, Math.min(1.0, config.netherPortalInvasionTriggerChance));
-        }
-        if (config.netherPortalInvasionMinWaves < 1) config.netherPortalInvasionMinWaves = 1;
-        if (config.netherPortalInvasionMaxWaves < config.netherPortalInvasionMinWaves) {
-            config.netherPortalInvasionMaxWaves = config.netherPortalInvasionMinWaves;
-        }
-        if (config.netherPortalInvasionFirstWaveSize < 1) config.netherPortalInvasionFirstWaveSize = 1;
-        if (config.netherPortalInvasionWaveSizeStep < 0) config.netherPortalInvasionWaveSizeStep = 0;
-        if (config.netherPortalInvasionScanIntervalTicks < 20) config.netherPortalInvasionScanIntervalTicks = 20;
-        if (config.netherPortalInvasionPortalCooldownTicks < 1200) config.netherPortalInvasionPortalCooldownTicks = 1200;
-        if (config.netherPortalInvasionGroupCohesionRadius < 1) {
-            config.netherPortalInvasionGroupCohesionRadius = 1;
-        }
+        return clamped;
     }
 
     private static List<WeightedMob> defaultPortalInvasionMobs() {

@@ -1,6 +1,7 @@
 package com.payangar.encounters.platform;
 
 import com.payangar.encounters.platform.services.IPlatformHelper;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Mob;
@@ -11,6 +12,8 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 import java.nio.file.Path;
@@ -43,6 +46,20 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
         NeoForge.EVENT_BUS.addListener((LevelTickEvent.Post event) -> {
             Level level = event.getLevel();
             if (level instanceof ServerLevel serverLevel) {
+                listener.accept(serverLevel);
+            }
+        });
+    }
+
+    @Override
+    public void registerServerStoppingListener(Consumer<MinecraftServer> listener) {
+        NeoForge.EVENT_BUS.addListener((ServerStoppingEvent event) -> listener.accept(event.getServer()));
+    }
+
+    @Override
+    public void registerServerLevelUnloadListener(Consumer<ServerLevel> listener) {
+        NeoForge.EVENT_BUS.addListener((LevelEvent.Unload event) -> {
+            if (event.getLevel() instanceof ServerLevel serverLevel) {
                 listener.accept(serverLevel);
             }
         });
