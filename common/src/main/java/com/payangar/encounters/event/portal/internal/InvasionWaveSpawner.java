@@ -81,6 +81,12 @@ public final class InvasionWaveSpawner {
             if (m.isAlive() && !m.isRemoved()) {
                 m.setInvulnerable(false);
                 m.setNoAi(false);
+                // While noAi is on, LivingEntity#travel early-returns (isControlledByLocalInstance
+                // falls through to isEffectiveAi == false), so push impulses from overlapping
+                // neighbours accumulate in deltaMovement instead of being consumed by move(SELF).
+                // Without this reset, the very next aiStep applies the whole accumulated vector
+                // at once and ejects the mob — proportional to how many mobs shared its column.
+                m.setDeltaMovement(Vec3.ZERO);
             }
         }
     }
