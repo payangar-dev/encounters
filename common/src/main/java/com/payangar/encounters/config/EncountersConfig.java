@@ -253,6 +253,35 @@ public class EncountersConfig {
         list.add(new WeightedMob("minecraft:hoglin", 2, SNBT_CROSSBOW_OUTRIDER, "Crossbow Outrider"));
         list.add(new WeightedMob("minecraft:hoglin", 2, SNBT_IRON_CHARGER, "Iron Charger"));
         list.add(new WeightedMob("minecraft:ghast", 1, SNBT_INFERNO_SOVEREIGN, "Inferno Sovereign"));
+        // Modded additions — auto-skipped per install by NbtModFilter when their
+        // mod is absent (referenced item/effect namespace) or by MobRoster.resolve
+        // when the entity type itself is missing from the registry (eternalnether,
+        // alexsmobs entries). A single config covers any modpack permutation.
+        // Modded weights are pitched against the vanilla scale (Soldier=40,
+        // Marksman=25, Shieldbearer=15) so they remain visible when their mod is
+        // loaded. Without any mod the entries are filtered and the vanilla
+        // distribution stays unchanged.
+        // EpicFight — exotic weapon roster: greatsword, spear, dual daggers.
+        list.add(new WeightedMob("minecraft:piglin", 12, SNBT_PIGLIN_GREATSWORD_BEARER, "Piglin Greatsword Bearer"));
+        list.add(new WeightedMob("minecraft:piglin", 10, SNBT_PIGLIN_SPEARBEARER, "Piglin Spearbearer"));
+        list.add(new WeightedMob("minecraft:piglin", 8, SNBT_PIGLIN_DUAL_DAGGER, "Piglin Dual-Dagger"));
+        list.add(new WeightedMob("minecraft:wither_skeleton", 6, SNBT_CINDER_REAVER, "Cinder Reaver"));
+        // Iron's Spells — fire magic carriers.
+        list.add(new WeightedMob("minecraft:piglin", 6, SNBT_MAGMAHEART_PIGLIN, "Magmaheart Piglin"));
+        list.add(new WeightedMob("minecraft:wither_skeleton", 5, SNBT_DASHING_INCINERATOR, "Dashing Incinerator"));
+        // Simply Swords — fire effect carriers.
+        list.add(new WeightedMob("minecraft:piglin", 6, SNBT_WILDFIRE_PIGLIN, "Wildfire Piglin"));
+        list.add(new WeightedMob("minecraft:wither_skeleton", 5, SNBT_SMOULDERING_MARAUDER, "Smouldering Marauder"));
+        // Eternal Nether — native nether entities with their own AI/equipment.
+        // NBT left null so each ships with its vanilla-style finalizeMobSpawn loadout.
+        list.add(new WeightedMob("eternalnether:piglin_hunter", 15, null, "Piglin Hunter"));
+        list.add(new WeightedMob("eternalnether:piglin_prisoner", 10, null, "Piglin Prisoner"));
+        list.add(new WeightedMob("eternalnether:wither_skeleton_knight", 10, null, "Wither Skeleton Knight"));
+        list.add(new WeightedMob("eternalnether:corpor", 6, null, "Corpor"));
+        list.add(new WeightedMob("eternalnether:wraither", 5, null, "Wraither"));
+        // Alex's Mobs — small/medium fire-immune flying threats.
+        list.add(new WeightedMob("alexsmobs:soul_vulture", 5, null, "Soul Vulture"));
+        list.add(new WeightedMob("alexsmobs:crimson_mosquito", 4, null, "Crimson Mosquito"));
         return list;
     }
 
@@ -430,5 +459,60 @@ public class EncountersConfig {
     // doesn't loop. Rider untagged — not part of the banner pool.
     private static final String SNBT_IRON_CHARGER = """
             {attributes:[{id:"minecraft:generic.max_health",base:50.0d},{id:"minecraft:generic.knockback_resistance",base:0.5d}],Health:50.0f,IsImmuneToZombification:1b,Passengers:[{id:"minecraft:wither_skeleton",attributes:[{id:"minecraft:generic.max_health",base:30.0d}],Health:30.0f,HandItems:[{id:"minecraft:iron_sword",count:1,components:{"minecraft:enchantments":{sharpness:2}}},{}],ArmorItems:[{},{},{id:"minecraft:chainmail_chestplate",count:1,components:{"minecraft:enchantments":{protection:1}}},{}]}]}\
+            """;
+
+    // ===== Portal Invasion — Modded variants =====
+    // Skipped automatically when their referenced mod is missing (see NbtModFilter).
+    // Equipment drop chances are intentionally omitted — global mobsDropEquipment
+    // toggle handles it. Wither-skeleton variants carry no banner tag by design
+    // (banners stay a piglin-faction signature).
+
+    // Requires: epicfight — heavy two-hander piglin. Leather chest dyed crimson
+    // leaves the head slot free for the banner roll.
+    private static final String SNBT_PIGLIN_GREATSWORD_BEARER = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.scale",base:1.1d},{id:"minecraft:generic.max_health",base:35.0d},{id:"minecraft:generic.knockback_resistance",base:0.3d}],Health:35.0f,IsImmuneToZombification:1b,HandItems:[{id:"epicfight:netherite_greatsword",count:1,components:{"minecraft:enchantments":{sharpness:3}}},{}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":10497574,"minecraft:enchantments":{protection:2}}},{}]}\
+            """;
+
+    // Requires: epicfight — reach-weapon piglin, faster than baseline so the
+    // spear's poke window stays oppressive.
+    private static final String SNBT_PIGLIN_SPEARBEARER = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.movement_speed",base:0.27d},{id:"minecraft:generic.max_health",base:28.0d}],Health:28.0f,IsImmuneToZombification:1b,HandItems:[{id:"epicfight:iron_spear",count:1,components:{"minecraft:enchantments":{sharpness:2}}},{}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":7227919}},{}]}\
+            """;
+
+    // Requires: epicfight — fast hit-and-run skirmisher with dual daggers and
+    // permanent speed I. Glass cannon: no chest armour.
+    private static final String SNBT_PIGLIN_DUAL_DAGGER = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.movement_speed",base:0.3d},{id:"minecraft:generic.max_health",base:22.0d}],Health:22.0f,IsImmuneToZombification:1b,active_effects:[{id:"minecraft:speed",amplifier:0b,duration:-1,show_particles:0b}],HandItems:[{id:"epicfight:iron_dagger",count:1,components:{"minecraft:enchantments":{sharpness:2}}},{id:"epicfight:iron_dagger",count:1,components:{"minecraft:enchantments":{sharpness:1}}}]}\
+            """;
+
+    // Requires: epicfight — wither_skeleton heavyweight with netherite great-
+    // sword, fire_aspect and chainmail. Strength I stacks on the wither-skel's
+    // already lethal output.
+    private static final String SNBT_CINDER_REAVER = """
+            {attributes:[{id:"minecraft:generic.scale",base:1.15d},{id:"minecraft:generic.max_health",base:40.0d}],Health:40.0f,active_effects:[{id:"minecraft:strength",amplifier:0b,duration:-1,show_particles:0b}],HandItems:[{id:"epicfight:netherite_greatsword",count:1,components:{"minecraft:enchantments":{sharpness:3,fire_aspect:2}}},{}],ArmorItems:[{},{id:"minecraft:chainmail_leggings",count:1},{id:"minecraft:chainmail_chestplate",count:1,components:{"minecraft:enchantments":{protection:2}}},{}]}\
+            """;
+
+    // Requires: irons_spellbooks — fire-DoT aura piglin. fire_resistance keeps
+    // it alive through its own immolate ticks and the inevitable splashback.
+    private static final String SNBT_MAGMAHEART_PIGLIN = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:30.0d}],Health:30.0f,IsImmuneToZombification:1b,active_effects:[{id:"minecraft:fire_resistance",amplifier:0b,duration:-1,show_particles:0b},{id:"irons_spellbooks:immolate",amplifier:0b,duration:-1,show_particles:1b}],HandItems:[{id:"minecraft:iron_sword",count:1,components:{"minecraft:enchantments":{sharpness:2,fire_aspect:1}}},{}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":7227919,"minecraft:enchantments":{protection:2}}},{}]}\
+            """;
+
+    // Requires: irons_spellbooks — wither_skel carrying burning_dash + strength.
+    // Stone sword with fire_aspect II for synergistic ignition.
+    private static final String SNBT_DASHING_INCINERATOR = """
+            {attributes:[{id:"minecraft:generic.max_health",base:35.0d}],Health:35.0f,active_effects:[{id:"minecraft:strength",amplifier:0b,duration:-1,show_particles:0b},{id:"irons_spellbooks:burning_dash",amplifier:1b,duration:-1,show_particles:1b}],HandItems:[{id:"minecraft:stone_sword",count:1,components:{"minecraft:enchantments":{sharpness:2,fire_aspect:2}}},{}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":1315860,"minecraft:enchantments":{protection:2}}},{}]}\
+            """;
+
+    // Requires: simplyswords — piglin with wildfire vortex effect; iron axe
+    // for melee. fire_resistance prevents self-damage from the vortex bursts.
+    private static final String SNBT_WILDFIRE_PIGLIN = """
+            {Tags:["encounters_banner_eligible"],attributes:[{id:"minecraft:generic.max_health",base:30.0d}],Health:30.0f,IsImmuneToZombification:1b,active_effects:[{id:"minecraft:fire_resistance",amplifier:0b,duration:-1,show_particles:0b},{id:"simplyswords:wildfire",amplifier:0b,duration:-1,show_particles:1b}],HandItems:[{id:"minecraft:iron_axe",count:1,components:{"minecraft:enchantments":{sharpness:2}}},{}],ArmorItems:[{},{},{id:"minecraft:leather_chestplate",count:1,components:{"minecraft:dyed_color":10497574,"minecraft:enchantments":{protection:2}}},{}]}\
+            """;
+
+    // Requires: simplyswords — wither_skel with smouldering DoT particles. Speed I
+    // closes the gap before the slow burn ticks pay off.
+    private static final String SNBT_SMOULDERING_MARAUDER = """
+            {attributes:[{id:"minecraft:generic.max_health",base:30.0d}],Health:30.0f,active_effects:[{id:"minecraft:speed",amplifier:0b,duration:-1,show_particles:0b},{id:"simplyswords:smouldering",amplifier:0b,duration:-1,show_particles:1b}],HandItems:[{id:"minecraft:iron_sword",count:1,components:{"minecraft:enchantments":{sharpness:2,fire_aspect:1}}},{}],ArmorItems:[{},{},{id:"minecraft:chainmail_chestplate",count:1,components:{"minecraft:enchantments":{protection:1}}},{}]}\
             """;
 }
