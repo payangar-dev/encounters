@@ -123,6 +123,7 @@ public final class PortalInvasion implements Cinematic {
 
     @Override public ServerLevel level() { return level; }
     @Override public Vec3 anchor()       { return anchor; }
+    @Override public String eventId()    { return NetherPortalInvasionEvent.ID; }
     @Override public boolean isFinished() { return finished; }
 
     @Override

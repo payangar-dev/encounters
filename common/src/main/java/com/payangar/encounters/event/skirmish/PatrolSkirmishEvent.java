@@ -94,7 +94,7 @@ public final class PatrolSkirmishEvent {
      * the world-wide post-skirmish cooldown.
      */
     public static boolean canScannerTrigger(ServerLevel level, EncountersConfig config) {
-        if (ActiveEncounterTracker.activeCount(level) >= config.patrolSkirmishMaxConcurrent) return false;
+        if (ActiveEncounterTracker.activeCount(level, ID) >= config.patrolSkirmishMaxConcurrent) return false;
         long now = level.getGameTime();
         long cooldown = config.patrolSkirmishCooldownTicks;
         return (now - lastSkirmishEndTick) >= cooldown;
@@ -123,7 +123,7 @@ public final class PatrolSkirmishEvent {
             Constants.LOG.warn("[{}] refused: illager roster is empty", ID);
             return false;
         }
-        int activeCount = ActiveEncounterTracker.activeCount(level);
+        int activeCount = ActiveEncounterTracker.activeCount(level, ID);
         if (activeCount >= config.patrolSkirmishMaxConcurrent) {
             Constants.LOG.info("[{}] refused: max concurrent reached ({}/{})",
                     ID, activeCount, config.patrolSkirmishMaxConcurrent);

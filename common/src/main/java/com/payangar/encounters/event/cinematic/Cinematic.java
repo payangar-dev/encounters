@@ -22,6 +22,17 @@ public interface Cinematic {
 
     Vec3 anchor();
 
+    /**
+     * Stable identifier of the event family this cinematic belongs to.
+     * By convention, return the {@code public static final String ID} declared
+     * on the corresponding event class (e.g. {@code NetherPortalInvasionEvent.ID}).
+     *
+     * <p>Used by {@link com.payangar.encounters.event.ActiveEncounterTracker}
+     * to count and locate cinematics of a given event independently from
+     * unrelated events tracked in the same set.</p>
+     */
+    String eventId();
+
     void tick();
 
     boolean isFinished();

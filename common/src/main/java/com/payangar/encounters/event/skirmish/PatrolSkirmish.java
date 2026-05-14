@@ -146,6 +146,7 @@ public final class PatrolSkirmish implements Cinematic {
 
     @Override public ServerLevel level()  { return level; }
     @Override public Vec3 anchor()        { return anchor; }
+    @Override public String eventId()     { return PatrolSkirmishEvent.ID; }
     @Override public boolean isFinished() { return finished; }
 
     @Override

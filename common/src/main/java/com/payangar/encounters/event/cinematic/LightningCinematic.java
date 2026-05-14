@@ -1,6 +1,7 @@
 package com.payangar.encounters.event.cinematic;
 
 import com.payangar.encounters.Constants;
+import com.payangar.encounters.event.LightningOverchargeEvent;
 import com.payangar.encounters.event.ally.EncounterAllies;
 import com.payangar.encounters.platform.Services;
 import net.minecraft.core.BlockPos;
@@ -119,6 +120,11 @@ public final class LightningCinematic implements Cinematic {
     @Override
     public Vec3 anchor() {
         return center;
+    }
+
+    @Override
+    public String eventId() {
+        return LightningOverchargeEvent.ID;
     }
 
     public void registerSpawnedMob(Entity mob) {

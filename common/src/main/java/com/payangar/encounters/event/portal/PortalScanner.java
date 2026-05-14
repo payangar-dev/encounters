@@ -2,6 +2,7 @@ package com.payangar.encounters.event.portal;
 
 import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.EncountersConfig;
+import com.payangar.encounters.event.ActiveEncounterTracker;
 import com.payangar.encounters.event.portal.PortalGeometry.PortalSite;
 import com.payangar.encounters.platform.Services;
 import net.minecraft.core.BlockPos;
@@ -33,8 +34,10 @@ import java.util.Set;
  * succeeds and whose geometry yields a valid spawn face triggers the
  * invasion via {@link NetherPortalInvasionEvent#forceTrigger}.</p>
  *
- * <p>The global lock and world-wide cooldown are enforced upstream by
- * {@link NetherPortalInvasionEvent#canScannerTrigger}.</p>
+ * <p>Concurrency cap and post-invasion cooldown are enforced upstream by
+ * {@link NetherPortalInvasionEvent#canScannerTrigger}. The minimum-distance
+ * gate ({@code netherPortalInvasionMinDistanceBetween}) is applied per-site
+ * here so a candidate near an already-active invasion is silently skipped.</p>
  */
 public final class PortalScanner {
 
@@ -84,11 +87,13 @@ public final class PortalScanner {
                 NetherPortalInvasionEvent.ID, sites.size());
 
         for (PortalSite site : sites) {
+            if (ActiveEncounterTracker.nearestActiveDistance(level, NetherPortalInvasionEvent.ID, site.centerBase())
+                    < config.netherPortalInvasionMinDistanceBetween) continue;
             if (rng.nextDouble() >= config.netherPortalInvasionTriggerChance) continue;
             Optional<Direction> face = PortalGeometry.chooseSpawnFace(level, site, rng);
             if (face.isEmpty()) continue;
             if (NetherPortalInvasionEvent.forceTrigger(level, site, face.get())) {
-                return; // success — only one invasion at a time anyway
+                return; // one trigger per scan tick is enough; the next interval will pick another candidate
             }
         }
     }

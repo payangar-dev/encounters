@@ -3,6 +3,7 @@ package com.payangar.encounters.event.portal;
 import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.EncountersConfig;
 import com.payangar.encounters.config.WeightedMob;
+import com.payangar.encounters.event.ActiveEncounterTracker;
 import com.payangar.encounters.event.MobRoster;
 import com.payangar.encounters.event.banner.BannerArmy;
 import com.payangar.encounters.event.cinematic.CinematicTicker;
@@ -21,14 +22,19 @@ import java.util.List;
 /**
  * Coordinates the nether portal invasion event.
  *
- * <p>Holds a process-wide single-instance lock — only one invasion may run at
- * a time across the whole server. After an invasion ends,
- * {@link #lastInvasionEndTick} stores the server tick at which the lock was
- * released; the scanner consults {@link #canScannerTrigger} to enforce a
- * world-wide cooldown between invasions.</p>
+ * <p>Concurrency and spatial spacing are enforced via
+ * {@link ActiveEncounterTracker}: at most
+ * {@link EncountersConfig#netherPortalInvasionMaxConcurrent} invasions may run
+ * on a level at any time, and the scanner skips candidate portal sites within
+ * {@link EncountersConfig#netherPortalInvasionMinDistanceBetween} blocks of an
+ * already-active invasion. After any invasion ends,
+ * {@link #lastInvasionEndTick} stores the server tick at which it released;
+ * {@link #canScannerTrigger} adds a world-wide post-end cooldown on top.</p>
  *
- * <p>The debug command bypasses the cooldown (it still respects the lock)
- * so that testing isn't blocked by a previous run.</p>
+ * <p>The debug command bypasses the cooldown (it still respects the concurrent
+ * cap) so testing isn't blocked by a previous run. The minimum-distance gate
+ * lives only in the scanner — the command may force two invasions adjacent to
+ * each other for testing.</p>
  */
 public final class NetherPortalInvasionEvent {
 
@@ -86,7 +92,13 @@ public final class NetherPortalInvasionEvent {
             ))
     );
 
-    private static volatile PortalInvasion currentInvasion;
+    /**
+     * Server tick at which the last invasion on any level ended. Combined
+     * with {@link EncountersConfig#netherPortalInvasionPortalCooldownTicks} to
+     * enforce a world-wide cooldown between invasions. Stays at
+     * {@link Long#MIN_VALUE} until the first invasion ends, so the cooldown
+     * is trivially satisfied at server start.
+     */
     private static volatile long lastInvasionEndTick = Long.MIN_VALUE;
 
     private static MobRoster cachedRoster;
@@ -94,27 +106,27 @@ public final class NetherPortalInvasionEvent {
 
     private NetherPortalInvasionEvent() {}
 
-    /** True if no invasion is currently running. */
-    public static boolean isLockFree() {
-        return currentInvasion == null;
-    }
-
     /**
-     * Whether the periodic scanner is allowed to start an invasion right now.
-     * Combines the global lock and the world-wide cooldown.
+     * Whether the periodic scanner is allowed to start an invasion on
+     * {@code level} right now. Gates on the per-level concurrency cap and
+     * the world-wide post-invasion cooldown.
      */
     public static boolean canScannerTrigger(ServerLevel level) {
-        if (currentInvasion != null) return false;
+        EncountersConfig config = EncountersConfig.get();
+        if (ActiveEncounterTracker.activeCount(level, ID) >= config.netherPortalInvasionMaxConcurrent) return false;
         long now = level.getGameTime();
-        long cooldown = EncountersConfig.get().netherPortalInvasionPortalCooldownTicks;
+        long cooldown = config.netherPortalInvasionPortalCooldownTicks;
         return (now - lastInvasionEndTick) >= cooldown;
     }
 
     /**
      * Starts an invasion at the given portal site, spawning toward the given
-     * face. Bypasses the cooldown but respects the global lock and the
+     * face. Bypasses the cooldown but respects the concurrent cap and the
      * dimension/roster sanity checks. Used by the debug command and by the
      * scanner once it has picked a candidate.
+     *
+     * <p>The minimum-distance gate is enforced upstream by {@link PortalScanner}
+     * so the debug command may force two adjacent invasions for testing.</p>
      *
      * @return true if the invasion was started, false if blocked.
      */
@@ -123,17 +135,19 @@ public final class NetherPortalInvasionEvent {
             Constants.LOG.warn("[{}] refused: not in overworld (dim={})", ID, level.dimension().location());
             return false;
         }
-        if (currentInvasion != null) {
-            Constants.LOG.info("[{}] refused: another invasion is already running", ID);
-            return false;
-        }
         EncountersConfig config = EncountersConfig.get();
         if (roster(config).isEmpty()) {
             Constants.LOG.warn("[{}] refused: roster is empty", ID);
             return false;
         }
+        int activeCount = ActiveEncounterTracker.activeCount(level, ID);
+        if (activeCount >= config.netherPortalInvasionMaxConcurrent) {
+            Constants.LOG.info("[{}] refused: max concurrent reached ({}/{})",
+                    ID, activeCount, config.netherPortalInvasionMaxConcurrent);
+            return false;
+        }
         PortalInvasion invasion = new PortalInvasion(level, site, face);
-        currentInvasion = invasion;
+        ActiveEncounterTracker.register(invasion);
         CinematicTicker.start(invasion);
         Constants.LOG.info("[{}] invasion started at portal centre ({}, {}, {}), facing {}, {} waves",
                 ID, (int) site.centerBase().x, (int) site.centerBase().y, (int) site.centerBase().z,
@@ -142,34 +156,19 @@ public final class NetherPortalInvasionEvent {
     }
 
     /**
-     * Called by {@link PortalInvasion} when it finishes or is abandoned. Only
-     * clears the lock if the caller is the current holder — protects against
-     * a stale instance racing a fresh one. Records the end tick so the
-     * cooldown starts ticking down for the next scanner trigger.
+     * Called by {@link PortalInvasion} when it finishes or is abandoned.
+     * Drops the tracker entry and records the cooldown timestamp so the next
+     * scanner trigger waits {@link EncountersConfig#netherPortalInvasionPortalCooldownTicks}.
      */
     static synchronized void releaseLock(PortalInvasion invasion) {
-        if (currentInvasion == invasion) {
-            currentInvasion = null;
-            lastInvasionEndTick = invasion.level().getGameTime();
-            Constants.LOG.info("[{}] lock released at tick {}", ID, lastInvasionEndTick);
-        }
+        ActiveEncounterTracker.unregister(invasion);
+        lastInvasionEndTick = invasion.level().getGameTime();
+        Constants.LOG.info("[{}] lock released at tick {}", ID, lastInvasionEndTick);
     }
 
-    /** Drops the global lock unconditionally. Used at server stop. */
-    public static synchronized void releaseAll() {
-        if (currentInvasion != null) {
-            Constants.LOG.info("[{}] dropping invasion at server stop", ID);
-            currentInvasion = null;
-        }
+    /** Drops the cooldown timestamp. Used at server stop. */
+    public static void releaseAll() {
         lastInvasionEndTick = Long.MIN_VALUE;
-    }
-
-    /** Drops the lock if it currently holds an invasion bound to {@code level}. Used at level unload. */
-    public static synchronized void releaseLevel(ServerLevel level) {
-        if (currentInvasion != null && currentInvasion.level() == level) {
-            Constants.LOG.info("[{}] dropping invasion at level unload ({})", ID, level.dimension().location());
-            currentInvasion = null;
-        }
     }
 
     public static MobRoster roster(EncountersConfig config) {

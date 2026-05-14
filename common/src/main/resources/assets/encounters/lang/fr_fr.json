@@ -36,8 +36,14 @@
     "yacl3.config.encounters:config.netherPortalInvasionScanIntervalTicks": "Intervalle de scan (ticks)",
     "yacl3.config.encounters:config.netherPortalInvasionScanIntervalTicks.desc": "Fréquence à laquelle le mod scanne les chunks chargés à la recherche de portails du Nether actifs. 100 ticks = 5 secondes. Une valeur plus basse réagit plus vite mais coûte un peu plus.",
 
-    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks": "Cooldown du portail (ticks)",
-    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks.desc": "Délai minimum entre deux invasions déclenchées par le même portail. 12000 ticks = 10 minutes.",
+    "yacl3.config.encounters:config.netherPortalInvasionMaxConcurrent": "Invasions simultanées max",
+    "yacl3.config.encounters:config.netherPortalInvasionMaxConcurrent.desc": "Nombre maximum d'invasions de portail qui peuvent se dérouler simultanément sur le niveau. Une fois atteint, le scanner ignore les nouveaux déclenchements jusqu'à ce qu'une finisse.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionMinDistanceBetween": "Distance min entre invasions",
+    "yacl3.config.encounters:config.netherPortalInvasionMinDistanceBetween.desc": "Distance minimale en blocs entre deux invasions de portail simultanées. Empêche les regroupements quand des portails proches déclencheraient ensemble.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks": "Cooldown post-invasion (ticks)",
+    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks.desc": "Délai minimum après la fin d'une invasion avant qu'une autre puisse se déclencher sur le niveau. 12000 ticks = 10 minutes.",
 
     "yacl3.config.encounters:config.netherPortalInvasionTriggerChance": "Chance de déclenchement",
     "yacl3.config.encounters:config.netherPortalInvasionTriggerChance.desc": "Probabilité qu'un portail éligible déclenche une invasion à un scan donné. 0 = jamais, 1 = à chaque scan.",

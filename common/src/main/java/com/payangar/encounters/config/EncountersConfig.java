@@ -95,7 +95,17 @@ public class EncountersConfig {
     @IntSlider(min = 20, max = 1200, step = 20)
     public int netherPortalInvasionScanIntervalTicks = 100;
 
-    @SerialEntry(comment = "Cooldown (in ticks) after an invasion ends before the same portal can trigger again")
+    @SerialEntry(comment = "Maximum number of nether portal invasions that may run simultaneously across the level")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @IntSlider(min = 1, max = 4, step = 1)
+    public int netherPortalInvasionMaxConcurrent = 1;
+
+    @SerialEntry(comment = "Minimum distance (in blocks) between two concurrent portal invasions")
+    @AutoGen(category = CATEGORY_PORTAL_INVASION)
+    @IntSlider(min = 64, max = 1024, step = 32)
+    public int netherPortalInvasionMinDistanceBetween = 256;
+
+    @SerialEntry(comment = "Cooldown (in ticks) applied across the level after any invasion ends before another one may trigger")
     @AutoGen(category = CATEGORY_PORTAL_INVASION)
     @IntSlider(min = 1200, max = 72000, step = 1200)
     public int netherPortalInvasionPortalCooldownTicks = 12000;
@@ -284,6 +294,10 @@ public class EncountersConfig {
                 config.netherPortalInvasionWaveSizeStep, 0, Integer.MAX_VALUE);
         config.netherPortalInvasionScanIntervalTicks = clampInt("netherPortalInvasionScanIntervalTicks",
                 config.netherPortalInvasionScanIntervalTicks, 20, Integer.MAX_VALUE);
+        config.netherPortalInvasionMaxConcurrent = clampInt("netherPortalInvasionMaxConcurrent",
+                config.netherPortalInvasionMaxConcurrent, 1, Integer.MAX_VALUE);
+        config.netherPortalInvasionMinDistanceBetween = clampInt("netherPortalInvasionMinDistanceBetween",
+                config.netherPortalInvasionMinDistanceBetween, 0, Integer.MAX_VALUE);
         config.netherPortalInvasionPortalCooldownTicks = clampInt("netherPortalInvasionPortalCooldownTicks",
                 config.netherPortalInvasionPortalCooldownTicks, 1200, Integer.MAX_VALUE);
         config.netherPortalInvasionGroupCohesionRadius = clampInt("netherPortalInvasionGroupCohesionRadius",

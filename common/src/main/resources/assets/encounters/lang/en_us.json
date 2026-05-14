@@ -36,8 +36,14 @@
     "yacl3.config.encounters:config.netherPortalInvasionScanIntervalTicks": "Scan Interval (ticks)",
     "yacl3.config.encounters:config.netherPortalInvasionScanIntervalTicks.desc": "How often the mod scans loaded chunks looking for active nether portals. 100 ticks = 5 seconds. Lower values are more reactive but slightly more expensive.",
 
-    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks": "Portal Cooldown (ticks)",
-    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks.desc": "Minimum time between two invasions triggered by the same portal. 12000 ticks = 10 minutes.",
+    "yacl3.config.encounters:config.netherPortalInvasionMaxConcurrent": "Max Concurrent Invasions",
+    "yacl3.config.encounters:config.netherPortalInvasionMaxConcurrent.desc": "Maximum number of nether portal invasions that may run simultaneously across the level. Once reached, the scanner skips new triggers until one ends.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionMinDistanceBetween": "Min Distance Between Invasions",
+    "yacl3.config.encounters:config.netherPortalInvasionMinDistanceBetween.desc": "Minimum distance in blocks between two concurrent portal invasions. Prevents clusters when nearby portals would otherwise trigger together.",
+
+    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks": "Post-Invasion Cooldown (ticks)",
+    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks.desc": "Minimum delay after any invasion ends before another one may trigger across the level. 12000 ticks = 10 minutes.",
 
     "yacl3.config.encounters:config.netherPortalInvasionTriggerChance": "Trigger Chance",
     "yacl3.config.encounters:config.netherPortalInvasionTriggerChance.desc": "Probability that any eligible portal triggers an invasion on a given scan. 0 = never, 1 = every scan.",

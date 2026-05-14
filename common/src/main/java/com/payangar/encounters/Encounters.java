@@ -46,7 +46,6 @@ public final class Encounters {
             CinematicTicker.clearLevel(level);
             GroupCohesionTicker.clearLevel(level);
             ActiveEncounterTracker.clearLevel(level);
-            NetherPortalInvasionEvent.releaseLevel(level);
             SkirmishScanner.clearLevel(level);
         });
     }

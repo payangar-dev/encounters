@@ -221,7 +221,7 @@ public final class SkirmishScanner {
         BlockPos candidate = new BlockPos(x, y, z);
         Vec3 candidateVec = Vec3.atCenterOf(candidate);
 
-        if (ActiveEncounterTracker.nearestActiveDistance(level, candidateVec)
+        if (ActiveEncounterTracker.nearestActiveDistance(level, PatrolSkirmishEvent.ID, candidateVec)
                 < config.patrolSkirmishMinDistanceBetween) return null;
         if (!isAllowedBiome(level, candidate, config)) return null;
         if (!isClearing(level, x, y, z)) return null;
