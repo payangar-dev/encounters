@@ -1,9 +1,11 @@
 package com.payangar.encounters.platform;
 
+import com.payangar.encounters.platform.services.EntityInteractListener;
 import com.payangar.encounters.platform.services.IPlatformHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.Level;
@@ -12,6 +14,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -61,6 +64,17 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
         NeoForge.EVENT_BUS.addListener((LevelEvent.Unload event) -> {
             if (event.getLevel() instanceof ServerLevel serverLevel) {
                 listener.accept(serverLevel);
+            }
+        });
+    }
+
+    @Override
+    public void registerEntityInteractListener(EntityInteractListener listener) {
+        NeoForge.EVENT_BUS.addListener((PlayerInteractEvent.EntityInteract event) -> {
+            InteractionResult result = listener.onInteract(event.getEntity(), event.getTarget(), event.getHand());
+            if (result != InteractionResult.PASS) {
+                event.setCanceled(true);
+                event.setCancellationResult(result);
             }
         });
     }

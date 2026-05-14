@@ -4,6 +4,7 @@
     "yacl3.config.encounters:config.category.general": "General",
     "yacl3.config.encounters:config.category.lightning_overcharge": "Lightning Overcharge",
     "yacl3.config.encounters:config.category.nether_portal_invasion": "Nether Portal Invasion",
+    "yacl3.config.encounters:config.category.patrol_skirmish": "Patrol Skirmish",
 
     "yacl3.config.encounters:config.mobsDropEquipment": "Mobs Drop Equipment",
     "yacl3.config.encounters:config.mobsDropEquipment.desc": "When enabled, mobs spawned by any encounter event can drop the weapons and armor they spawned with. When disabled (default), their equipment is always kept.",
@@ -64,6 +65,45 @@
 
     "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled": "Magma Bomb Barrage",
     "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled.desc": "When enabled and Iron's Spells 'n Spellbooks is loaded, the portal periodically lobs Magma Bomb spells out of the gateway during the invasion. The bombs follow a ballistic arc and explode on impact, leaving a fire field. Spell level scales +1 per wave (capped at 8). No effect when the mod is absent.",
+
+    "yacl3.config.encounters:config.patrolSkirmishEnabled": "Enabled",
+    "yacl3.config.encounters:config.patrolSkirmishEnabled.desc": "Master toggle for the patrol skirmish event. When disabled, no skirmish will ever spawn.",
+
+    "yacl3.config.encounters:config.patrolSkirmishScanIntervalTicks": "Scan Interval (ticks)",
+    "yacl3.config.encounters:config.patrolSkirmishScanIntervalTicks.desc": "How often the scanner attempts to spawn a new patrol skirmish. 1200 ticks = 1 minute. Lower values are more reactive but slightly more expensive.",
+
+    "yacl3.config.encounters:config.patrolSkirmishTriggerChance": "Trigger Chance",
+    "yacl3.config.encounters:config.patrolSkirmishTriggerChance.desc": "Probability that the scanner spawns a skirmish at an eligible site on a given scan. 0 = never, 1 = every scan.",
+
+    "yacl3.config.encounters:config.patrolSkirmishMaxConcurrent": "Max Concurrent Skirmishes",
+    "yacl3.config.encounters:config.patrolSkirmishMaxConcurrent.desc": "Maximum number of skirmishes that may run simultaneously across the level. Once reached, the scanner skips new spawns until one ends.",
+
+    "yacl3.config.encounters:config.patrolSkirmishMinDistanceBetween": "Min Distance Between Skirmishes",
+    "yacl3.config.encounters:config.patrolSkirmishMinDistanceBetween.desc": "Minimum distance in blocks between two concurrent skirmishes. Prevents clusters when multiple players roam different areas.",
+
+    "yacl3.config.encounters:config.patrolSkirmishCooldownTicks": "Cooldown (ticks)",
+    "yacl3.config.encounters:config.patrolSkirmishCooldownTicks.desc": "Cooldown after any skirmish ends before a new one can spawn anywhere. 6000 ticks = 5 minutes.",
+
+    "yacl3.config.encounters:config.patrolSkirmishDayOnly": "Day Only",
+    "yacl3.config.encounters:config.patrolSkirmishDayOnly.desc": "When enabled, skirmishes only spawn during daytime. Disabling allows night-time skirmishes — expect more chaos as vanilla hostile mobs may join in.",
+
+    "yacl3.config.encounters:config.patrolSkirmishTimeoutTicks": "Skirmish Timeout (ticks)",
+    "yacl3.config.encounters:config.patrolSkirmishTimeoutTicks.desc": "Maximum lifetime of a skirmish before forced cleanup. 24000 ticks = 20 minutes.",
+
+    "yacl3.config.encounters:config.patrolSkirmishRewardWaitMaxTicks": "Reward Wait Timeout (ticks)",
+    "yacl3.config.encounters:config.patrolSkirmishRewardWaitMaxTicks.desc": "After the combat ends, how long the reward cinematic waits for an eligible (non-hostile) player before giving up. 2400 ticks = 2 minutes.",
+
+    "yacl3.config.encounters:config.patrolSkirmishMobsPerSide": "Mobs Per Side",
+    "yacl3.config.encounters:config.patrolSkirmishMobsPerSide.desc": "Number of mobs spawned per faction at skirmish start. Skirmish-scale (4-6) reads better than full-scale battles.",
+
+    "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide": "Caravan Chance Per Side",
+    "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide.desc": "Probability that a caravan (a carrier leading a chest-bearing pack animal) accompanies each faction. Rolled independently per side.",
+
+    "yacl3.config.encounters:config.patrolSkirmishVillagerMobs": "Villager Faction Pool",
+    "yacl3.config.encounters:config.patrolSkirmishVillagerMobs.desc": "Weighted pool of mobs that may spawn on the villager side. Click an entry to edit its id, weight, label and SNBT.",
+
+    "yacl3.config.encounters:config.patrolSkirmishIllagerMobs": "Illager Faction Pool",
+    "yacl3.config.encounters:config.patrolSkirmishIllagerMobs.desc": "Weighted pool of mobs that may spawn on the illager side. Click an entry to edit its id, weight, label and SNBT.",
 
     "encounters.config.weightedMob.empty": "(empty entry)",
     "encounters.config.editMob.title": "Edit Mob Entry",

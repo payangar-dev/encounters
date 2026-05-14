@@ -4,6 +4,7 @@
     "yacl3.config.encounters:config.category.general": "Général",
     "yacl3.config.encounters:config.category.lightning_overcharge": "Éclair surchargé",
     "yacl3.config.encounters:config.category.nether_portal_invasion": "Invasion de portail du Nether",
+    "yacl3.config.encounters:config.category.patrol_skirmish": "Escarmouche de patrouille",
 
     "yacl3.config.encounters:config.mobsDropEquipment": "Les mobs peuvent lâcher leur équipement",
     "yacl3.config.encounters:config.mobsDropEquipment.desc": "Quand activé, les mobs apparus lors d'un évènement peuvent lâcher les armes et armures avec lesquelles ils ont spawn. Désactivé par défaut : leur équipement est toujours conservé.",
@@ -64,6 +65,45 @@
 
     "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled": "Barrage de bombes de magma",
     "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled.desc": "Quand activé et qu'Iron's Spells 'n Spellbooks est chargé, le portail lance périodiquement des sorts Magma Bomb pendant l'invasion. Les bombes suivent une trajectoire en cloche et explosent à l'impact en laissant un champ de feu. Le niveau du sort augmente de +1 par vague (plafonné à 8). Sans effet si le mod est absent.",
+
+    "yacl3.config.encounters:config.patrolSkirmishEnabled": "Activé",
+    "yacl3.config.encounters:config.patrolSkirmishEnabled.desc": "Interrupteur principal de l'évènement d'escarmouche de patrouille. Désactivé, aucune escarmouche n'apparaîtra jamais.",
+
+    "yacl3.config.encounters:config.patrolSkirmishScanIntervalTicks": "Intervalle de scan (ticks)",
+    "yacl3.config.encounters:config.patrolSkirmishScanIntervalTicks.desc": "Fréquence à laquelle le scanner tente de faire apparaître une nouvelle escarmouche. 1200 ticks = 1 minute. Une valeur plus basse réagit plus vite mais coûte un peu plus.",
+
+    "yacl3.config.encounters:config.patrolSkirmishTriggerChance": "Chance de déclenchement",
+    "yacl3.config.encounters:config.patrolSkirmishTriggerChance.desc": "Probabilité que le scanner fasse apparaître une escarmouche à un site éligible lors d'un scan. 0 = jamais, 1 = à chaque scan.",
+
+    "yacl3.config.encounters:config.patrolSkirmishMaxConcurrent": "Escarmouches simultanées max",
+    "yacl3.config.encounters:config.patrolSkirmishMaxConcurrent.desc": "Nombre maximum d'escarmouches qui peuvent se dérouler simultanément sur le niveau. Une fois atteint, le scanner ignore les nouveaux spawns jusqu'à ce qu'une finisse.",
+
+    "yacl3.config.encounters:config.patrolSkirmishMinDistanceBetween": "Distance min entre escarmouches",
+    "yacl3.config.encounters:config.patrolSkirmishMinDistanceBetween.desc": "Distance minimale en blocs entre deux escarmouches simultanées. Empêche les regroupements quand plusieurs joueurs explorent des zones différentes.",
+
+    "yacl3.config.encounters:config.patrolSkirmishCooldownTicks": "Cooldown (ticks)",
+    "yacl3.config.encounters:config.patrolSkirmishCooldownTicks.desc": "Cooldown après la fin d'une escarmouche avant qu'une nouvelle puisse apparaître. 6000 ticks = 5 minutes.",
+
+    "yacl3.config.encounters:config.patrolSkirmishDayOnly": "Jour uniquement",
+    "yacl3.config.encounters:config.patrolSkirmishDayOnly.desc": "Quand activé, les escarmouches n'apparaissent que de jour. Désactivé, des escarmouches nocturnes sont possibles — attendez-vous à plus de chaos car les mobs hostiles vanilla peuvent s'incruster.",
+
+    "yacl3.config.encounters:config.patrolSkirmishTimeoutTicks": "Timeout de l'escarmouche (ticks)",
+    "yacl3.config.encounters:config.patrolSkirmishTimeoutTicks.desc": "Durée maximale d'une escarmouche avant nettoyage forcé. 24000 ticks = 20 minutes.",
+
+    "yacl3.config.encounters:config.patrolSkirmishRewardWaitMaxTicks": "Timeout d'attente de récompense (ticks)",
+    "yacl3.config.encounters:config.patrolSkirmishRewardWaitMaxTicks.desc": "Après la fin du combat, durée pendant laquelle la cinématique de récompense attend un joueur éligible (non hostile) avant d'abandonner. 2400 ticks = 2 minutes.",
+
+    "yacl3.config.encounters:config.patrolSkirmishMobsPerSide": "Mobs par camp",
+    "yacl3.config.encounters:config.patrolSkirmishMobsPerSide.desc": "Nombre de mobs apparaissant par camp au démarrage. L'échelle skirmish (4-6) se lit mieux qu'une bataille rangée.",
+
+    "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide": "Chance de caravane par camp",
+    "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide.desc": "Probabilité qu'une caravane (un porteur menant un animal de bât chargé d'un coffre) accompagne chaque camp. Lancée indépendamment par camp.",
+
+    "yacl3.config.encounters:config.patrolSkirmishVillagerMobs": "Pool du camp villageois",
+    "yacl3.config.encounters:config.patrolSkirmishVillagerMobs.desc": "Pool pondéré des mobs pouvant apparaître côté villageois. Cliquez une entrée pour éditer son id, son poids, son label et son SNBT.",
+
+    "yacl3.config.encounters:config.patrolSkirmishIllagerMobs": "Pool du camp illager",
+    "yacl3.config.encounters:config.patrolSkirmishIllagerMobs.desc": "Pool pondéré des mobs pouvant apparaître côté illager. Cliquez une entrée pour éditer son id, son poids, son label et son SNBT.",
 
     "encounters.config.weightedMob.empty": "(entrée vide)",
     "encounters.config.editMob.title": "Édition d'une entrée mob",

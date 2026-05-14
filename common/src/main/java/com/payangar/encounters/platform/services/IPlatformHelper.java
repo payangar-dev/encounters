@@ -43,4 +43,11 @@ public interface IPlatformHelper {
      * dangling reference to a dead {@link ServerLevel}.
      */
     void registerServerLevelUnloadListener(Consumer<ServerLevel> listener);
+
+    /**
+     * Register a listener fired when a player right-clicks an entity.
+     * On Fabric this wraps {@code UseEntityCallback}; on NeoForge it wraps
+     * {@code PlayerInteractEvent.EntityInteract}.
+     */
+    void registerEntityInteractListener(EntityInteractListener listener);
 }

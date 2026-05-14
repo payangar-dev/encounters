@@ -6,6 +6,7 @@ import com.payangar.encounters.event.LightningOverchargeEvent;
 import com.payangar.encounters.event.portal.NetherPortalInvasionEvent;
 import com.payangar.encounters.event.portal.PortalGeometry;
 import com.payangar.encounters.event.portal.PortalGeometry.PortalSite;
+import com.payangar.encounters.event.skirmish.PatrolSkirmishEvent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
@@ -37,6 +38,12 @@ public final class EncountersCommands {
                                         .executes(ctx -> triggerPortalInvasionAtSource(ctx))
                                         .then(Commands.argument("pos", Vec3Argument.vec3())
                                                 .executes(ctx -> triggerPortalInvasion(ctx, Vec3Argument.getVec3(ctx, "pos")))
+                                        )
+                                )
+                                .then(Commands.literal(PatrolSkirmishEvent.ID)
+                                        .executes(ctx -> triggerPatrolSkirmishAtSource(ctx))
+                                        .then(Commands.argument("pos", Vec3Argument.vec3())
+                                                .executes(ctx -> triggerPatrolSkirmish(ctx, Vec3Argument.getVec3(ctx, "pos")))
                                         )
                                 )
                         )
@@ -117,6 +124,34 @@ public final class EncountersCommands {
         src.sendFailure(Component.literal(
                 "Cannot trigger " + NetherPortalInvasionEvent.ID +
                         " (already running, wrong dimension, or empty roster — see logs)"));
+        return 0;
+    }
+
+    // ---------- Patrol skirmish ----------
+
+    private static int triggerPatrolSkirmishAtSource(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack src = ctx.getSource();
+        Vec3 ground = findGroundBelow(src.getLevel(), src.getPosition());
+        if (ground == null) {
+            src.sendFailure(Component.literal(
+                    "Cannot trigger " + PatrolSkirmishEvent.ID + ": no solid block found below"));
+            return 0;
+        }
+        return triggerPatrolSkirmish(ctx, ground);
+    }
+
+    private static int triggerPatrolSkirmish(CommandContext<CommandSourceStack> ctx, Vec3 pos) {
+        CommandSourceStack src = ctx.getSource();
+        ServerLevel level = src.getLevel();
+        boolean started = PatrolSkirmishEvent.forceTrigger(level, pos);
+        if (started) {
+            src.sendSuccess(() -> Component.literal(
+                    "Triggered " + PatrolSkirmishEvent.ID + " at "
+                            + (int) pos.x + " " + (int) pos.y + " " + (int) pos.z), true);
+            return 1;
+        }
+        src.sendFailure(Component.literal(
+                "Cannot trigger " + PatrolSkirmishEvent.ID + " — see logs"));
         return 0;
     }
 

@@ -22,6 +22,7 @@ public class EncountersConfig {
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_LIGHTNING = "lightning_overcharge";
     public static final String CATEGORY_PORTAL_INVASION = "nether_portal_invasion";
+    public static final String CATEGORY_PATROL_SKIRMISH = "patrol_skirmish";
 
     private static final ConfigClassHandler<EncountersConfig> HANDLER = ConfigClassHandler
             .createBuilder(EncountersConfig.class)
@@ -153,6 +154,85 @@ public class EncountersConfig {
     @TickBox
     public boolean netherPortalInvasionMagmaBombEnabled = true;
 
+    // ===== Patrol Skirmish =====
+
+    @SerialEntry(comment = "Master toggle for the patrol_skirmish event")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @TickBox
+    public boolean patrolSkirmishEnabled = true;
+
+    @SerialEntry(comment = "How often (in server ticks) the scanner attempts to spawn a new patrol skirmish")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @IntSlider(min = 600, max = 12000, step = 200)
+    public int patrolSkirmishScanIntervalTicks = 1200;
+
+    @SerialEntry(comment = "Probability (per scan) that the scanner spawns a skirmish at an eligible site")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @DoubleSlider(min = 0.0, max = 1.0, step = 0.01)
+    public double patrolSkirmishTriggerChance = 0.15;
+
+    @SerialEntry(comment = "Maximum number of skirmishes that may run simultaneously across the level")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @IntSlider(min = 1, max = 8, step = 1)
+    public int patrolSkirmishMaxConcurrent = 2;
+
+    @SerialEntry(comment = "Minimum distance (in blocks) between two concurrent skirmishes")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @IntSlider(min = 64, max = 1024, step = 32)
+    public int patrolSkirmishMinDistanceBetween = 256;
+
+    @SerialEntry(comment = "Cooldown (in ticks) after any skirmish ends before a new one can spawn anywhere")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @IntSlider(min = 0, max = 72000, step = 600)
+    public int patrolSkirmishCooldownTicks = 6000;
+
+    @SerialEntry(comment = "Only spawn skirmishes during daytime")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @TickBox
+    public boolean patrolSkirmishDayOnly = true;
+
+    @SerialEntry(comment = "Maximum lifetime (in ticks) of a skirmish before forced cleanup")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @IntSlider(min = 6000, max = 72000, step = 1200)
+    public int patrolSkirmishTimeoutTicks = 24000;
+
+    @SerialEntry(comment = "Maximum wait (in ticks) before the reward cinematic gives up if no eligible player is reachable")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @IntSlider(min = 600, max = 12000, step = 200)
+    public int patrolSkirmishRewardWaitMaxTicks = 2400;
+
+    @SerialEntry(comment = "Number of mobs spawned per faction at skirmish start")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @IntSlider(min = 2, max = 12, step = 1)
+    public int patrolSkirmishMobsPerSide = 5;
+
+    @SerialEntry(comment = "Probability that a caravan (carrier + chest-bearing pack animal) spawns per faction")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @DoubleSlider(min = 0.0, max = 1.0, step = 0.05)
+    public double patrolSkirmishCaravanChancePerSide = 0.65;
+
+    @SerialEntry(comment = "Biomes where a skirmish may spawn. Add namespaced biome ids, e.g. minecraft:plains. " +
+            "Editable only via the JSON5 file — no in-game GUI widget for this list.")
+    public List<String> patrolSkirmishBiomes = defaultPatrolSkirmishBiomes();
+
+    @SerialEntry(comment = "Weighted mob pool for the villager faction. Same { id, weight, nbt?, label? } format as other events.")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @ListGroup(
+            valueFactory = WeightedMobListFactory.class,
+            controllerFactory = WeightedMobListFactory.class,
+            addEntriesToBottom = true
+    )
+    public List<WeightedMob> patrolSkirmishVillagerMobs = defaultPatrolSkirmishVillagerMobs();
+
+    @SerialEntry(comment = "Weighted mob pool for the illager faction. Same { id, weight, nbt?, label? } format as other events.")
+    @AutoGen(category = CATEGORY_PATROL_SKIRMISH)
+    @ListGroup(
+            valueFactory = WeightedMobListFactory.class,
+            controllerFactory = WeightedMobListFactory.class,
+            addEntriesToBottom = true
+    )
+    public List<WeightedMob> patrolSkirmishIllagerMobs = defaultPatrolSkirmishIllagerMobs();
+
     // ===== Access =====
 
     public static EncountersConfig get() {
@@ -208,6 +288,25 @@ public class EncountersConfig {
                 config.netherPortalInvasionPortalCooldownTicks, 1200, Integer.MAX_VALUE);
         config.netherPortalInvasionGroupCohesionRadius = clampInt("netherPortalInvasionGroupCohesionRadius",
                 config.netherPortalInvasionGroupCohesionRadius, 1, Integer.MAX_VALUE);
+
+        config.patrolSkirmishTriggerChance = clampDouble("patrolSkirmishTriggerChance",
+                config.patrolSkirmishTriggerChance, 0.0, 1.0);
+        config.patrolSkirmishCaravanChancePerSide = clampDouble("patrolSkirmishCaravanChancePerSide",
+                config.patrolSkirmishCaravanChancePerSide, 0.0, 1.0);
+        config.patrolSkirmishScanIntervalTicks = clampInt("patrolSkirmishScanIntervalTicks",
+                config.patrolSkirmishScanIntervalTicks, 20, Integer.MAX_VALUE);
+        config.patrolSkirmishMaxConcurrent = clampInt("patrolSkirmishMaxConcurrent",
+                config.patrolSkirmishMaxConcurrent, 1, Integer.MAX_VALUE);
+        config.patrolSkirmishMinDistanceBetween = clampInt("patrolSkirmishMinDistanceBetween",
+                config.patrolSkirmishMinDistanceBetween, 0, Integer.MAX_VALUE);
+        config.patrolSkirmishCooldownTicks = clampInt("patrolSkirmishCooldownTicks",
+                config.patrolSkirmishCooldownTicks, 0, Integer.MAX_VALUE);
+        config.patrolSkirmishTimeoutTicks = clampInt("patrolSkirmishTimeoutTicks",
+                config.patrolSkirmishTimeoutTicks, 1200, Integer.MAX_VALUE);
+        config.patrolSkirmishRewardWaitMaxTicks = clampInt("patrolSkirmishRewardWaitMaxTicks",
+                config.patrolSkirmishRewardWaitMaxTicks, 200, Integer.MAX_VALUE);
+        config.patrolSkirmishMobsPerSide = clampInt("patrolSkirmishMobsPerSide",
+                config.patrolSkirmishMobsPerSide, 1, Integer.MAX_VALUE);
     }
 
     private static int clampInt(String name, int value, int min, int max) {
@@ -224,6 +323,57 @@ public class EncountersConfig {
             Constants.LOG.warn("config field {} was {}, clamped to [{}, {}]", name, value, min, max);
         }
         return clamped;
+    }
+
+    private static List<String> defaultPatrolSkirmishBiomes() {
+        List<String> list = new ArrayList<>();
+        list.add("minecraft:plains");
+        list.add("minecraft:sunflower_plains");
+        list.add("minecraft:savanna");
+        list.add("minecraft:savanna_plateau");
+        list.add("minecraft:windswept_savanna");
+        list.add("minecraft:taiga");
+        list.add("minecraft:snowy_taiga");
+        list.add("minecraft:forest");
+        list.add("minecraft:flower_forest");
+        list.add("minecraft:dark_forest");
+        list.add("minecraft:birch_forest");
+        list.add("minecraft:old_growth_birch_forest");
+        list.add("minecraft:meadow");
+        return list;
+    }
+
+    private static List<WeightedMob> defaultPatrolSkirmishVillagerMobs() {
+        List<WeightedMob> list = new ArrayList<>();
+        // Vanilla baseline — always available. Iron Golem already targets every
+        // Raider subclass natively, so no extra goal injection is required.
+        // The "encounters_high_cost" tag makes the golem consume two slots in
+        // mobsPerSide (see PatrolSkirmish.HIGH_COST_TAG) — keeps the bilateral
+        // combat balanced against the lighter Guard.
+        list.add(new WeightedMob("minecraft:iron_golem", 30, SNBT_PATROL_IRON_GOLEM, "Iron Golem"));
+        // Guard Villagers — filtered automatically by MobRoster.resolve when the
+        // mod is absent. With it installed, guards carry the bulk of the villager
+        // faction's combat output (sword + crossbow + shield, plus a defend-
+        // village goal that aggroes on Raiders out of the box).
+        list.add(new WeightedMob("guardvillagers:guard", 30, null, "Village Guard"));
+        return list;
+    }
+
+    private static final String SNBT_PATROL_IRON_GOLEM = """
+            {Tags:["encounters_high_cost"]}\
+            """;
+
+    private static List<WeightedMob> defaultPatrolSkirmishIllagerMobs() {
+        List<WeightedMob> list = new ArrayList<>();
+        // Vanilla illager faction. Ravager kept at a deliberately low weight —
+        // it disrupts cohesion and pushes mob bounding boxes around, so a
+        // single appearance per skirmish is rare on purpose.
+        list.add(new WeightedMob("minecraft:pillager", 30, null, "Pillager"));
+        list.add(new WeightedMob("minecraft:vindicator", 20, null, "Vindicator"));
+        list.add(new WeightedMob("minecraft:witch", 8, null, "Witch"));
+        list.add(new WeightedMob("minecraft:evoker", 5, null, "Evoker"));
+        list.add(new WeightedMob("minecraft:ravager", 2, null, "Ravager"));
+        return list;
     }
 
     private static List<WeightedMob> defaultPortalInvasionMobs() {

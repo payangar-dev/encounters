@@ -1,9 +1,11 @@
 package com.payangar.encounters.platform;
 
+import com.payangar.encounters.platform.services.EntityInteractListener;
 import com.payangar.encounters.platform.services.IPlatformHelper;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -50,5 +52,11 @@ public class FabricPlatformHelper implements IPlatformHelper {
     @Override
     public void registerServerLevelUnloadListener(Consumer<ServerLevel> listener) {
         ServerWorldEvents.UNLOAD.register((server, world) -> listener.accept(world));
+    }
+
+    @Override
+    public void registerEntityInteractListener(EntityInteractListener listener) {
+        UseEntityCallback.EVENT.register((player, world, hand, entity, hit) ->
+                listener.onInteract(player, entity, hand));
     }
 }
