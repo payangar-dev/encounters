@@ -1,6 +1,5 @@
 package com.payangar.encounters.event.portal.internal;
 
-import com.payangar.encounters.config.EncountersConfig;
 import com.payangar.encounters.event.EncounterSpawner;
 import com.payangar.encounters.event.MobRoster;
 import com.payangar.encounters.event.ResolvedMob;
@@ -60,8 +59,7 @@ public final class InvasionWaveSpawner {
      * caller can flash particles there.
      */
     public Vec3 spawnOneMob(IntUnaryOperator weightTransform) {
-        EncountersConfig config = EncountersConfig.get();
-        MobRoster roster = NetherPortalInvasionEvent.roster(config);
+        MobRoster roster = NetherPortalInvasionEvent.roster();
         Optional<ResolvedMob> pick = roster.pick(level.getRandom(), weightTransform);
         if (pick.isEmpty()) return null;
 

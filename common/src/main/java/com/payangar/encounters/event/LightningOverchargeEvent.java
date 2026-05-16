@@ -2,13 +2,15 @@ package com.payangar.encounters.event;
 
 import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.EncountersConfig;
-import com.payangar.encounters.config.WeightedMob;
 import com.payangar.encounters.event.ally.EncounterAllies;
 import com.payangar.encounters.event.cinematic.CinematicTicker;
 import com.payangar.encounters.event.cinematic.LightningCinematic;
 import com.payangar.encounters.event.cohesion.GroupCohesion;
 import com.payangar.encounters.event.cohesion.GroupCohesionTicker;
+import com.payangar.encounters.event.pool.EncounterPoolsManager;
+import com.payangar.encounters.event.pool.SpawnPool;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -30,12 +32,17 @@ import java.util.Set;
 public final class LightningOverchargeEvent {
 
     public static final String ID = "lightning_overcharge";
+    /**
+     * Datapack pool location: {@code data/encounters/spawn_pools/lightning_overcharge.json}.
+     */
+    public static final ResourceLocation POOL_ID =
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, ID);
     public static final String OWN_BOLT_TAG = "encounters_overcharged";
     private static final double SPAWN_RADIUS = 2.5;
     private static final int MAX_PLACEMENT_ATTEMPTS = 24;
 
     private static MobRoster cachedRoster;
-    private static List<WeightedMob> cachedSource;
+    private static SpawnPool cachedPool;
 
     private LightningOverchargeEvent() {}
 
@@ -54,7 +61,7 @@ public final class LightningOverchargeEvent {
 
         // Bail out *before* cancelling the vanilla bolt if the roster is empty —
         // otherwise the player would just see the lightning vanish.
-        if (roster(config).isEmpty()) return false;
+        if (roster().isEmpty()) return false;
 
         RandomSource rng = level.getRandom();
         if (rng.nextDouble() >= config.lightningOverchargeChance) return false;
@@ -77,7 +84,7 @@ public final class LightningOverchargeEvent {
         spawnEncounterLightning(level, pos);
 
         EncountersConfig config = EncountersConfig.get();
-        MobRoster roster = roster(config);
+        MobRoster roster = roster();
         if (roster.isEmpty()) return 0;
 
         RandomSource rng = level.getRandom();
@@ -194,17 +201,18 @@ public final class LightningOverchargeEvent {
         return true;
     }
 
-    private static MobRoster roster(EncountersConfig config) {
-        if (cachedRoster == null || cachedSource != config.lightningOverchargeMobs) {
-            cachedRoster = MobRoster.resolve(config.lightningOverchargeMobs, ID);
-            cachedSource = config.lightningOverchargeMobs;
+    private static MobRoster roster() {
+        SpawnPool pool = EncounterPoolsManager.getInstance().get(POOL_ID);
+        if (cachedRoster == null || cachedPool != pool) {
+            cachedRoster = MobRoster.resolve(pool, ID);
+            cachedPool = pool;
         }
         return cachedRoster;
     }
 
     public static void invalidateRoster() {
         cachedRoster = null;
-        cachedSource = null;
+        cachedPool = null;
     }
 
     private static String formatBreakdown(Map<String, Integer> breakdown) {

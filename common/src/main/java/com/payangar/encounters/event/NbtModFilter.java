@@ -9,8 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * Walks an NBT tree looking for {@code "modid:path"} references whose
- * declaring mod is not loaded. Used to silently filter out
- * {@code WeightedMob} entries that depend on optional mods.
+ * declaring mod is not loaded. Used to silently filter out spawn pool
+ * entries that depend on optional mods.
  */
 public final class NbtModFilter {
 

@@ -2,11 +2,12 @@ package com.payangar.encounters.event.portal;
 
 import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.EncountersConfig;
-import com.payangar.encounters.config.WeightedMob;
 import com.payangar.encounters.event.ActiveEncounterTracker;
 import com.payangar.encounters.event.MobRoster;
 import com.payangar.encounters.event.banner.BannerArmy;
 import com.payangar.encounters.event.cinematic.CinematicTicker;
+import com.payangar.encounters.event.pool.EncounterPoolsManager;
+import com.payangar.encounters.event.pool.SpawnPool;
 import com.payangar.encounters.event.portal.PortalGeometry.PortalSite;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -39,6 +40,9 @@ import java.util.List;
 public final class NetherPortalInvasionEvent {
 
     public static final String ID = "nether_portal_invasion";
+    /** Datapack pool location: {@code data/encounters/spawn_pools/nether_portal_invasion.json}. */
+    public static final ResourceLocation POOL_ID =
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, ID);
 
     /**
      * Loot table rolled when an invasion is fully completed (all waves
@@ -102,7 +106,7 @@ public final class NetherPortalInvasionEvent {
     private static volatile long lastInvasionEndTick = Long.MIN_VALUE;
 
     private static MobRoster cachedRoster;
-    private static List<WeightedMob> cachedSource;
+    private static SpawnPool cachedPool;
 
     private NetherPortalInvasionEvent() {}
 
@@ -136,7 +140,7 @@ public final class NetherPortalInvasionEvent {
             return false;
         }
         EncountersConfig config = EncountersConfig.get();
-        if (roster(config).isEmpty()) {
+        if (roster().isEmpty()) {
             Constants.LOG.warn("[{}] refused: roster is empty", ID);
             return false;
         }
@@ -171,16 +175,17 @@ public final class NetherPortalInvasionEvent {
         lastInvasionEndTick = Long.MIN_VALUE;
     }
 
-    public static MobRoster roster(EncountersConfig config) {
-        if (cachedRoster == null || cachedSource != config.netherPortalInvasionMobs) {
-            cachedRoster = MobRoster.resolve(config.netherPortalInvasionMobs, ID);
-            cachedSource = config.netherPortalInvasionMobs;
+    public static MobRoster roster() {
+        SpawnPool pool = EncounterPoolsManager.getInstance().get(POOL_ID);
+        if (cachedRoster == null || cachedPool != pool) {
+            cachedRoster = MobRoster.resolve(pool, ID);
+            cachedPool = pool;
         }
         return cachedRoster;
     }
 
     public static void invalidateRoster() {
         cachedRoster = null;
-        cachedSource = null;
+        cachedPool = null;
     }
 }

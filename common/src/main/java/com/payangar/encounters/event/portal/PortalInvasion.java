@@ -325,7 +325,7 @@ public final class PortalInvasion implements Cinematic {
      * base-30 mob (already decreasing) is unaffected.</p>
      */
     private IntUnaryOperator waveWeightTransform() {
-        int maxW = NetherPortalInvasionEvent.roster(EncountersConfig.get()).maxBaseWeight();
+        int maxW = NetherPortalInvasionEvent.roster().maxBaseWeight();
         double progress = totalWaves > 1 ? (currentWave - 1.0) / (totalWaves - 1) : 0.0;
         return base -> {
             double inverted = base + progress * (maxW - 2.0 * base + 1.0);

@@ -209,8 +209,8 @@ public final class PatrolSkirmish implements Cinematic {
     private void spawnInitialPockets() {
         EncountersConfig config = EncountersConfig.get();
         int perSide = config.patrolSkirmishMobsPerSide;
-        MobRoster villagerRoster = PatrolSkirmishEvent.villagerRoster(config);
-        MobRoster illagerRoster = PatrolSkirmishEvent.illagerRoster(config);
+        MobRoster villagerRoster = PatrolSkirmishEvent.villagerRoster();
+        MobRoster illagerRoster = PatrolSkirmishEvent.illagerRoster();
         if (villagerRoster.isEmpty() || illagerRoster.isEmpty()) return;
 
         RandomSource rng = level.getRandom();

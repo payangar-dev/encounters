@@ -1,0 +1,111 @@
+{
+  "entries": [
+    {
+      "id": "minecraft:piglin", "weight": 40, "label": "Piglin Soldier",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.max_health","base":25.0}],"Health":25.0,"IsImmuneToZombification":1,"HandItems":[{"id":"minecraft:golden_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":2}}},{}]}
+    },
+    {
+      "id": "minecraft:piglin", "weight": 25, "label": "Piglin Marksman",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.max_health","base":25.0}],"Health":25.0,"IsImmuneToZombification":1,"HandItems":[{"id":"minecraft:crossbow","count":1,"components":{"minecraft:enchantments":{"quick_charge":2}}},{}]}
+    },
+    {
+      "id": "minecraft:piglin", "weight": 15, "label": "Piglin Shieldbearer",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.max_health","base":35.0},{"id":"minecraft:generic.knockback_resistance","base":0.5}],"Health":35.0,"IsImmuneToZombification":1,"HandItems":[{"id":"minecraft:iron_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":2}}},{"id":"minecraft:shield","count":1}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":10497574,"minecraft:enchantments":{"protection":1}}},{}]}
+    },
+    {
+      "id": "minecraft:wither_skeleton", "weight": 12, "label": "Ashen Marauder",
+      "nbt": {"attributes":[{"id":"minecraft:generic.max_health","base":25.0}],"Health":25.0,"HandItems":[{"id":"minecraft:stone_sword","count":1},{}]}
+    },
+    {
+      "id": "minecraft:piglin", "weight": 10, "label": "Piglin Pyromancer",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.max_health","base":25.0}],"Health":25.0,"IsImmuneToZombification":1,"active_effects":[{"id":"minecraft:fire_resistance","amplifier":0,"duration":-1,"show_particles":0}],"HandItems":[{"id":"minecraft:golden_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":1,"fire_aspect":2}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":7227919}},{}]}
+    },
+    {
+      "id": "minecraft:blaze", "weight": 8, "label": "Embercaller",
+      "nbt": {"attributes":[{"id":"minecraft:generic.max_health","base":25.0}],"Health":25.0}
+    },
+    {
+      "id": "minecraft:piglin", "weight": 8, "label": "Piglin Berserker",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.max_health","base":25.0}],"Health":25.0,"IsImmuneToZombification":1,"active_effects":[{"id":"minecraft:strength","amplifier":0,"duration":-1,"show_particles":0},{"id":"minecraft:speed","amplifier":0,"duration":-1,"show_particles":0}],"HandItems":[{"id":"minecraft:iron_axe","count":1,"components":{"minecraft:enchantments":{"sharpness":3}}},{}]}
+    },
+    {
+      "id": "minecraft:piglin", "weight": 6, "label": "Piglin Heavy Guard",
+      "nbt": {"attributes":[{"id":"minecraft:generic.max_health","base":40.0},{"id":"minecraft:generic.knockback_resistance","base":0.5}],"Health":40.0,"IsImmuneToZombification":1,"HandItems":[{"id":"minecraft:iron_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":2}}},{}],"ArmorItems":[{},{},{"id":"minecraft:iron_chestplate","count":1,"components":{"minecraft:enchantments":{"protection":2}}},{"id":"minecraft:iron_helmet","count":1,"components":{"minecraft:enchantments":{"protection":1}}}]}
+    },
+    {
+      "id": "minecraft:piglin_brute", "weight": 5, "label": "Ironhide Brute",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.scale","base":1.1},{"id":"minecraft:generic.max_health","base":60.0},{"id":"minecraft:generic.knockback_resistance","base":0.4}],"Health":60.0,"IsImmuneToZombification":1,"HandItems":[{"id":"minecraft:iron_axe","count":1,"components":{"minecraft:enchantments":{"sharpness":3}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":1315860,"minecraft:enchantments":{"protection":2}}},{"id":"minecraft:iron_helmet","count":1,"components":{"minecraft:enchantments":{"protection":1}}}]}
+    },
+    {
+      "id": "minecraft:wither_skeleton", "weight": 5, "label": "Cinder Knight",
+      "nbt": {"attributes":[{"id":"minecraft:generic.max_health","base":30.0}],"Health":30.0,"HandItems":[{"id":"minecraft:iron_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":2}}},{}],"ArmorItems":[{"id":"minecraft:chainmail_boots","count":1},{"id":"minecraft:chainmail_leggings","count":1},{"id":"minecraft:chainmail_chestplate","count":1,"components":{"minecraft:enchantments":{"protection":1}}},{"id":"minecraft:chainmail_helmet","count":1}]}
+    },
+    {
+      "id": "minecraft:wither_skeleton", "weight": 4, "label": "Ash Sentinel",
+      "nbt": {"attributes":[{"id":"minecraft:generic.max_health","base":25.0}],"Health":25.0,"active_effects":[{"id":"minecraft:speed","amplifier":0,"duration":-1,"show_particles":0}],"HandItems":[{"id":"minecraft:stone_axe","count":1,"components":{"minecraft:enchantments":{"sharpness":1}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":1315860}},{}]}
+    },
+    {
+      "id": "minecraft:zombified_piglin", "weight": 4, "label": "Zombified Piglin Wanderer",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.max_health","base":25.0}],"Health":25.0,"HandItems":[{"id":"minecraft:golden_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":1}}},{}],"ArmorItems":[{},{},{},{"id":"minecraft:golden_helmet","count":1}]}
+    },
+    {
+      "id": "minecraft:piglin_brute", "weight": 3, "label": "Goldforged Brute",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.scale","base":1.1},{"id":"minecraft:generic.max_health","base":60.0},{"id":"minecraft:generic.knockback_resistance","base":0.5}],"Health":60.0,"IsImmuneToZombification":1,"HandItems":[{"id":"minecraft:golden_axe","count":1,"components":{"minecraft:enchantments":{"sharpness":3,"fire_aspect":1}}},{}],"ArmorItems":[{"id":"minecraft:golden_boots","count":1,"components":{"minecraft:enchantments":{"protection":2}}},{"id":"minecraft:golden_leggings","count":1,"components":{"minecraft:enchantments":{"protection":2}}},{"id":"minecraft:golden_chestplate","count":1,"components":{"minecraft:enchantments":{"protection":3}}},{"id":"minecraft:golden_helmet","count":1,"components":{"minecraft:enchantments":{"protection":2}}}]}
+    },
+    {
+      "id": "minecraft:hoglin", "weight": 3, "label": "Tusked Vanguard",
+      "nbt": {"attributes":[{"id":"minecraft:generic.max_health","base":50.0},{"id":"minecraft:generic.knockback_resistance","base":0.6}],"Health":50.0,"IsImmuneToZombification":1,"Passengers":[{"id":"minecraft:piglin_brute","Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.scale","base":1.1},{"id":"minecraft:generic.max_health","base":50.0}],"Health":50.0,"IsImmuneToZombification":1,"HandItems":[{"id":"minecraft:iron_axe","count":1,"components":{"minecraft:enchantments":{"sharpness":2,"knockback":1}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":10497574,"minecraft:enchantments":{"protection":2}}},{}]}]}
+    },
+    {
+      "id": "minecraft:hoglin", "weight": 2, "label": "Crossbow Outrider",
+      "nbt": {"attributes":[{"id":"minecraft:generic.max_health","base":45.0},{"id":"minecraft:generic.knockback_resistance","base":0.5}],"Health":45.0,"IsImmuneToZombification":1,"Passengers":[{"id":"minecraft:piglin","Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.max_health","base":25.0}],"Health":25.0,"IsImmuneToZombification":1,"HandItems":[{"id":"minecraft:crossbow","count":1,"components":{"minecraft:enchantments":{"quick_charge":2,"multishot":1}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":10497574,"minecraft:enchantments":{"protection":1}}},{}]}]}
+    },
+    {
+      "id": "minecraft:hoglin", "weight": 2, "label": "Iron Charger",
+      "nbt": {"attributes":[{"id":"minecraft:generic.max_health","base":50.0},{"id":"minecraft:generic.knockback_resistance","base":0.5}],"Health":50.0,"IsImmuneToZombification":1,"Passengers":[{"id":"minecraft:wither_skeleton","attributes":[{"id":"minecraft:generic.max_health","base":30.0}],"Health":30.0,"HandItems":[{"id":"minecraft:iron_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":2}}},{}],"ArmorItems":[{},{},{"id":"minecraft:chainmail_chestplate","count":1,"components":{"minecraft:enchantments":{"protection":1}}},{}]}]}
+    },
+    {
+      "id": "minecraft:ghast", "weight": 1, "label": "Inferno Sovereign",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.1},{"id":"minecraft:generic.max_health","base":30.0}],"Health":30.0}
+    },
+    {
+      "id": "minecraft:piglin", "weight": 12, "label": "Piglin Greatsword Bearer",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.scale","base":1.1},{"id":"minecraft:generic.max_health","base":35.0},{"id":"minecraft:generic.knockback_resistance","base":0.3}],"Health":35.0,"IsImmuneToZombification":1,"HandItems":[{"id":"epicfight:netherite_greatsword","count":1,"components":{"minecraft:enchantments":{"sharpness":3}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":10497574,"minecraft:enchantments":{"protection":2}}},{}]}
+    },
+    {
+      "id": "minecraft:piglin", "weight": 10, "label": "Piglin Spearbearer",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.movement_speed","base":0.27},{"id":"minecraft:generic.max_health","base":28.0}],"Health":28.0,"IsImmuneToZombification":1,"HandItems":[{"id":"epicfight:iron_spear","count":1,"components":{"minecraft:enchantments":{"sharpness":2}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":7227919}},{}]}
+    },
+    {
+      "id": "minecraft:piglin", "weight": 8, "label": "Piglin Dual-Dagger",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.movement_speed","base":0.3},{"id":"minecraft:generic.max_health","base":22.0}],"Health":22.0,"IsImmuneToZombification":1,"active_effects":[{"id":"minecraft:speed","amplifier":0,"duration":-1,"show_particles":0}],"HandItems":[{"id":"epicfight:iron_dagger","count":1,"components":{"minecraft:enchantments":{"sharpness":2}}},{"id":"epicfight:iron_dagger","count":1,"components":{"minecraft:enchantments":{"sharpness":1}}}]}
+    },
+    {
+      "id": "minecraft:wither_skeleton", "weight": 6, "label": "Cinder Reaver",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.15},{"id":"minecraft:generic.max_health","base":40.0}],"Health":40.0,"active_effects":[{"id":"minecraft:strength","amplifier":0,"duration":-1,"show_particles":0}],"HandItems":[{"id":"epicfight:netherite_greatsword","count":1,"components":{"minecraft:enchantments":{"sharpness":3,"fire_aspect":2}}},{}],"ArmorItems":[{},{"id":"minecraft:chainmail_leggings","count":1},{"id":"minecraft:chainmail_chestplate","count":1,"components":{"minecraft:enchantments":{"protection":2}}},{}]}
+    },
+    {
+      "id": "minecraft:piglin", "weight": 6, "label": "Magmaheart Piglin",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.max_health","base":30.0}],"Health":30.0,"IsImmuneToZombification":1,"active_effects":[{"id":"minecraft:fire_resistance","amplifier":0,"duration":-1,"show_particles":0},{"id":"irons_spellbooks:immolate","amplifier":0,"duration":-1,"show_particles":1}],"HandItems":[{"id":"minecraft:iron_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":2,"fire_aspect":1}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":7227919,"minecraft:enchantments":{"protection":2}}},{}]}
+    },
+    {
+      "id": "minecraft:wither_skeleton", "weight": 5, "label": "Dashing Incinerator",
+      "nbt": {"attributes":[{"id":"minecraft:generic.max_health","base":35.0}],"Health":35.0,"active_effects":[{"id":"minecraft:strength","amplifier":0,"duration":-1,"show_particles":0},{"id":"irons_spellbooks:burning_dash","amplifier":1,"duration":-1,"show_particles":1}],"HandItems":[{"id":"minecraft:stone_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":2,"fire_aspect":2}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":1315860,"minecraft:enchantments":{"protection":2}}},{}]}
+    },
+    {
+      "id": "minecraft:piglin", "weight": 6, "label": "Wildfire Piglin",
+      "nbt": {"Tags":["encounters_banner_eligible"],"attributes":[{"id":"minecraft:generic.max_health","base":30.0}],"Health":30.0,"IsImmuneToZombification":1,"active_effects":[{"id":"minecraft:fire_resistance","amplifier":0,"duration":-1,"show_particles":0},{"id":"simplyswords:wildfire","amplifier":0,"duration":-1,"show_particles":1}],"HandItems":[{"id":"minecraft:iron_axe","count":1,"components":{"minecraft:enchantments":{"sharpness":2}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":10497574,"minecraft:enchantments":{"protection":2}}},{}]}
+    },
+    {
+      "id": "minecraft:wither_skeleton", "weight": 5, "label": "Smouldering Marauder",
+      "nbt": {"attributes":[{"id":"minecraft:generic.max_health","base":30.0}],"Health":30.0,"active_effects":[{"id":"minecraft:speed","amplifier":0,"duration":-1,"show_particles":0},{"id":"simplyswords:smouldering","amplifier":0,"duration":-1,"show_particles":1}],"HandItems":[{"id":"minecraft:iron_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":2,"fire_aspect":1}}},{}],"ArmorItems":[{},{},{"id":"minecraft:chainmail_chestplate","count":1,"components":{"minecraft:enchantments":{"protection":1}}},{}]}
+    },
+    { "id": "eternalnether:piglin_hunter",         "weight": 15, "label": "Piglin Hunter" },
+    { "id": "eternalnether:piglin_prisoner",       "weight": 10, "label": "Piglin Prisoner" },
+    { "id": "eternalnether:wither_skeleton_knight","weight": 10, "label": "Wither Skeleton Knight" },
+    { "id": "eternalnether:corpor",                "weight": 6,  "label": "Corpor" },
+    { "id": "eternalnether:wraither",              "weight": 5,  "label": "Wraither" },
+    { "id": "alexsmobs:soul_vulture",              "weight": 5,  "label": "Soul Vulture" },
+    { "id": "alexsmobs:crimson_mosquito",          "weight": 4,  "label": "Crimson Mosquito" }
+  ]
+}

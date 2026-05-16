@@ -6,6 +6,7 @@ import com.payangar.encounters.event.EncounterRegistry;
 import com.payangar.encounters.event.LightningOverchargeEvent;
 import com.payangar.encounters.event.cinematic.CinematicTicker;
 import com.payangar.encounters.event.cohesion.GroupCohesionTicker;
+import com.payangar.encounters.event.pool.EncounterPoolsManager;
 import com.payangar.encounters.event.portal.NetherPortalInvasionEvent;
 import com.payangar.encounters.event.portal.PortalScanner;
 import com.payangar.encounters.event.skirmish.PatrolSkirmishEvent;
@@ -19,6 +20,7 @@ public final class Encounters {
         Constants.LOG.info("Initializing {} common bootstrap", Constants.MOD_NAME);
         registerEvents();
         EncountersConfig.load();
+        Services.PLATFORM.registerReloadListener(EncounterPoolsManager.ID, EncounterPoolsManager.getInstance());
         CinematicTicker.initialize();
         GroupCohesionTicker.initialize();
         PortalScanner.initialize();

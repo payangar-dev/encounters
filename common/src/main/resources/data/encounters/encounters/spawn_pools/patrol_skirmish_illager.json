@@ -1,0 +1,9 @@
+{
+  "entries": [
+    { "id": "minecraft:pillager",  "weight": 30, "label": "Pillager"   },
+    { "id": "minecraft:vindicator", "weight": 20, "label": "Vindicator" },
+    { "id": "minecraft:witch",      "weight": 8,  "label": "Witch"      },
+    { "id": "minecraft:evoker",     "weight": 5,  "label": "Evoker"     },
+    { "id": "minecraft:ravager",    "weight": 2,  "label": "Ravager"    }
+  ]
+}

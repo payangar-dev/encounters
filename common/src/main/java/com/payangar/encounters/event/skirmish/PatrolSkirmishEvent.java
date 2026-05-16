@@ -2,10 +2,11 @@ package com.payangar.encounters.event.skirmish;
 
 import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.EncountersConfig;
-import com.payangar.encounters.config.WeightedMob;
 import com.payangar.encounters.event.ActiveEncounterTracker;
 import com.payangar.encounters.event.MobRoster;
 import com.payangar.encounters.event.cinematic.CinematicTicker;
+import com.payangar.encounters.event.pool.EncounterPoolsManager;
+import com.payangar.encounters.event.pool.SpawnPool;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -14,8 +15,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.List;
 
 /**
  * Coordinates the patrol_skirmish event — a bilateral encounter between a
@@ -34,6 +33,13 @@ public final class PatrolSkirmishEvent {
 
     public static final String ID = "patrol_skirmish";
 
+    /** Datapack pool location: {@code data/encounters/spawn_pools/patrol_skirmish_villager.json}. */
+    public static final ResourceLocation VILLAGER_POOL_ID =
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "patrol_skirmish_villager");
+    /** Datapack pool location: {@code data/encounters/spawn_pools/patrol_skirmish_illager.json}. */
+    public static final ResourceLocation ILLAGER_POOL_ID =
+            ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "patrol_skirmish_illager");
+
     /**
      * Loot table rolled into the reward chest placed by the cascade leader at
      * the end of a successful skirmish. The default at
@@ -49,10 +55,10 @@ public final class PatrolSkirmishEvent {
             ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, "reward/patrol_skirmish_thanks"));
 
     private static MobRoster cachedVillagerRoster;
-    private static List<WeightedMob> cachedVillagerSource;
+    private static SpawnPool cachedVillagerPool;
 
     private static MobRoster cachedIllagerRoster;
-    private static List<WeightedMob> cachedIllagerSource;
+    private static SpawnPool cachedIllagerPool;
 
     /**
      * Server tick at which the last skirmish on any level ended. Combined
@@ -65,27 +71,29 @@ public final class PatrolSkirmishEvent {
 
     private PatrolSkirmishEvent() {}
 
-    public static MobRoster villagerRoster(EncountersConfig config) {
-        if (cachedVillagerRoster == null || cachedVillagerSource != config.patrolSkirmishVillagerMobs) {
-            cachedVillagerRoster = MobRoster.resolve(config.patrolSkirmishVillagerMobs, ID + ".villager");
-            cachedVillagerSource = config.patrolSkirmishVillagerMobs;
+    public static MobRoster villagerRoster() {
+        SpawnPool pool = EncounterPoolsManager.getInstance().get(VILLAGER_POOL_ID);
+        if (cachedVillagerRoster == null || cachedVillagerPool != pool) {
+            cachedVillagerRoster = MobRoster.resolve(pool, ID + ".villager");
+            cachedVillagerPool = pool;
         }
         return cachedVillagerRoster;
     }
 
-    public static MobRoster illagerRoster(EncountersConfig config) {
-        if (cachedIllagerRoster == null || cachedIllagerSource != config.patrolSkirmishIllagerMobs) {
-            cachedIllagerRoster = MobRoster.resolve(config.patrolSkirmishIllagerMobs, ID + ".illager");
-            cachedIllagerSource = config.patrolSkirmishIllagerMobs;
+    public static MobRoster illagerRoster() {
+        SpawnPool pool = EncounterPoolsManager.getInstance().get(ILLAGER_POOL_ID);
+        if (cachedIllagerRoster == null || cachedIllagerPool != pool) {
+            cachedIllagerRoster = MobRoster.resolve(pool, ID + ".illager");
+            cachedIllagerPool = pool;
         }
         return cachedIllagerRoster;
     }
 
     public static void invalidateRoster() {
         cachedVillagerRoster = null;
-        cachedVillagerSource = null;
+        cachedVillagerPool = null;
         cachedIllagerRoster = null;
-        cachedIllagerSource = null;
+        cachedIllagerPool = null;
     }
 
     /**
@@ -115,11 +123,11 @@ public final class PatrolSkirmishEvent {
             return false;
         }
         EncountersConfig config = EncountersConfig.get();
-        if (villagerRoster(config).isEmpty()) {
+        if (villagerRoster().isEmpty()) {
             Constants.LOG.warn("[{}] refused: villager roster is empty", ID);
             return false;
         }
-        if (illagerRoster(config).isEmpty()) {
+        if (illagerRoster().isEmpty()) {
             Constants.LOG.warn("[{}] refused: illager roster is empty", ID);
             return false;
         }

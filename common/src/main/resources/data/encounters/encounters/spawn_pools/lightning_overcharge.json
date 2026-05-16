@@ -1,0 +1,48 @@
+{
+  "entries": [
+    {
+      "id": "minecraft:skeleton", "weight": 10, "label": "Stormcaller",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.1},{"id":"minecraft:generic.max_health","base":28.0}],"Health":28.0,"HandItems":[{"id":"minecraft:bow","count":1,"components":{"minecraft:enchantments":{"power":3,"flame":1,"punch":1}}},{}],"ArmorItems":[{},{},{},{"id":"minecraft:leather_helmet","count":1,"components":{"minecraft:dyed_color":1912627,"minecraft:enchantments":{"protection":2}}}]}
+    },
+    {
+      "id": "minecraft:zombie", "weight": 8, "label": "Soul-Drowned",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.15},{"id":"minecraft:generic.max_health","base":40.0},{"id":"minecraft:generic.knockback_resistance","base":0.5}],"Health":40.0,"active_effects":[{"id":"minecraft:strength","amplifier":0,"duration":-1,"show_particles":0}],"HandItems":[{"id":"minecraft:iron_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":2,"knockback":1}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":1912627,"minecraft:enchantments":{"protection":2}}},{}]}
+    },
+    {
+      "id": "minecraft:stray", "weight": 5, "label": "Frostbound Echo",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.1},{"id":"minecraft:generic.max_health","base":26.0}],"Health":26.0,"HandItems":[{"id":"minecraft:bow","count":1,"components":{"minecraft:enchantments":{"power":2,"punch":2}}},{}]}
+    },
+    {
+      "id": "minecraft:drowned", "weight": 4, "label": "Tempest Wraith",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.1},{"id":"minecraft:generic.max_health","base":30.0}],"Health":30.0,"active_effects":[{"id":"minecraft:conduit_power","amplifier":0,"duration":-1,"show_particles":1}],"HandItems":[{"id":"minecraft:trident","count":1,"components":{"minecraft:enchantments":{"impaling":4,"loyalty":3}}},{}]}
+    },
+    {
+      "id": "minecraft:wither_skeleton", "weight": 2, "label": "Soul-lit Vanguard",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.2},{"id":"minecraft:generic.max_health","base":45.0}],"Health":45.0,"active_effects":[{"id":"minecraft:strength","amplifier":0,"duration":-1,"show_particles":0}],"HandItems":[{"id":"minecraft:stone_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":3,"fire_aspect":2}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":0,"minecraft:enchantments":{"protection":3}}},{}]}
+    },
+    {
+      "id": "minecraft:wither_skeleton", "weight": 2, "label": "Stormcrown Vanguard",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.25},{"id":"minecraft:generic.max_health","base":50.0}],"Health":50.0,"active_effects":[{"id":"minecraft:strength","amplifier":1,"duration":-1,"show_particles":0}],"HandItems":[{"id":"epicfight:netherite_greatsword","count":1,"components":{"minecraft:enchantments":{"sharpness":3}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":1912627,"minecraft:enchantments":{"protection":3}}},{"id":"minecraft:leather_helmet","count":1,"components":{"minecraft:dyed_color":1912627,"minecraft:enchantments":{"protection":2}}}]}
+    },
+    {
+      "id": "minecraft:skeleton", "weight": 2, "label": "Echo Fencer",
+      "nbt": {"attributes":[{"id":"minecraft:generic.movement_speed","base":0.28},{"id":"minecraft:generic.max_health","base":26.0}],"Health":26.0,"active_effects":[{"id":"minecraft:speed","amplifier":1,"duration":-1,"show_particles":0}],"HandItems":[{"id":"epicfight:iron_dagger","count":1,"components":{"minecraft:enchantments":{"sharpness":2}}},{"id":"epicfight:iron_dagger","count":1,"components":{"minecraft:enchantments":{"sharpness":1}}}],"ArmorItems":[{},{},{},{"id":"minecraft:leather_helmet","count":1,"components":{"minecraft:dyed_color":1912627}}]}
+    },
+    {
+      "id": "minecraft:drowned", "weight": 2, "label": "Spearborn Drowned",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.1},{"id":"minecraft:generic.movement_speed","base":0.26},{"id":"minecraft:generic.max_health","base":30.0}],"Health":30.0,"active_effects":[{"id":"minecraft:conduit_power","amplifier":0,"duration":-1,"show_particles":1},{"id":"minecraft:speed","amplifier":0,"duration":-1,"show_particles":0}],"HandItems":[{"id":"epicfight:iron_spear","count":1,"components":{"minecraft:enchantments":{"sharpness":2}}},{}]}
+    },
+    {
+      "id": "minecraft:zombie", "weight": 2, "label": "Voltaic Revenant",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.1},{"id":"minecraft:generic.max_health","base":38.0}],"Health":38.0,"active_effects":[{"id":"minecraft:strength","amplifier":0,"duration":-1,"show_particles":0},{"id":"irons_spellbooks:charged","amplifier":1,"duration":-1,"show_particles":1},{"id":"irons_spellbooks:volt_strike","amplifier":0,"duration":-1,"show_particles":0}],"HandItems":[{"id":"minecraft:iron_sword","count":1,"components":{"minecraft:enchantments":{"sharpness":2,"knockback":1}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":1912627,"minecraft:enchantments":{"protection":2}}},{}]}
+    },
+    {
+      "id": "minecraft:stray", "weight": 2, "label": "Sculk-Echo Stalker",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.1},{"id":"minecraft:generic.max_health","base":28.0}],"Health":28.0,"active_effects":[{"id":"minecraft:speed","amplifier":0,"duration":-1,"show_particles":0},{"id":"irons_spellbooks:echoing_strikes","amplifier":1,"duration":-1,"show_particles":0},{"id":"irons_spellbooks:hastened","amplifier":0,"duration":-1,"show_particles":0}],"HandItems":[{"id":"minecraft:bow","count":1,"components":{"minecraft:enchantments":{"power":2,"punch":1}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":1912627,"minecraft:enchantments":{"protection":2}}},{}]}
+    },
+    {
+      "id": "minecraft:skeleton", "weight": 2, "label": "Stormborn Marksman",
+      "nbt": {"attributes":[{"id":"minecraft:generic.scale","base":1.15},{"id":"minecraft:generic.max_health","base":30.0}],"Health":30.0,"active_effects":[{"id":"minecraft:speed","amplifier":0,"duration":-1,"show_particles":0},{"id":"simplyswords:storm","amplifier":1,"duration":-1,"show_particles":1}],"HandItems":[{"id":"minecraft:bow","count":1,"components":{"minecraft:enchantments":{"power":3,"punch":2}}},{}],"ArmorItems":[{},{},{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:dyed_color":1912627,"minecraft:enchantments":{"protection":2}}},{}]}
+    }
+  ]
+}

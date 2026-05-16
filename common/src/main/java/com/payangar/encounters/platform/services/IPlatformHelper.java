@@ -1,7 +1,9 @@
 package com.payangar.encounters.platform.services;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -50,4 +52,15 @@ public interface IPlatformHelper {
      * {@code PlayerInteractEvent.EntityInteract}.
      */
     void registerEntityInteractListener(EntityInteractListener listener);
+
+    /**
+     * Register a server-side {@link PreparableReloadListener} fired at server
+     * start and on {@code /reload}. Used by the mod to (re)load its datapack
+     * content (spawn pools, mob templates, etc.).
+     *
+     * <p>{@code id} is a stable identifier used by Fabric for reload-order
+     * dependencies. NeoForge does not consume it but it is logged for
+     * consistency.</p>
+     */
+    void registerReloadListener(ResourceLocation id, PreparableReloadListener listener);
 }

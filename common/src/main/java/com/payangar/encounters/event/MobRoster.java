@@ -1,10 +1,10 @@
 package com.payangar.encounters.event;
 
 import com.payangar.encounters.Constants;
-import com.payangar.encounters.config.WeightedMob;
+import com.payangar.encounters.event.pool.SpawnEntry;
+import com.payangar.encounters.event.pool.SpawnPool;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
@@ -83,60 +83,56 @@ public final class MobRoster {
         return Optional.empty();
     }
 
-    public static MobRoster resolve(List<WeightedMob> raw, String eventId) {
+    /**
+     * Resolves the entries of {@code pool} into a runtime-usable roster.
+     *
+     * <p>Per entry, the following rules apply (each failure is logged and the
+     * entry skipped — the roster as a whole continues):</p>
+     * <ul>
+     *   <li>{@code weight <= 0} → skipped (codec accepts any int; gate here).</li>
+     *   <li>entity type not registered → skipped (silent at DEBUG, counts as
+     *       a "missing mod" filter so the user sees the total).</li>
+     *   <li>NBT references a {@code namespace:path} string whose mod isn't
+     *       loaded → skipped via {@link NbtModFilter}.</li>
+     * </ul>
+     */
+    public static MobRoster resolve(SpawnPool pool, String eventId) {
         List<Entry> resolved = new ArrayList<>();
         int filtered = 0;
 
-        if (raw != null) {
-            for (int i = 0; i < raw.size(); i++) {
-                WeightedMob entry = raw.get(i);
-                if (entry == null) continue;
+        List<SpawnEntry> entries = pool.entries();
+        for (int i = 0; i < entries.size(); i++) {
+            SpawnEntry entry = entries.get(i);
+            if (entry == null) continue;
 
-                if (entry.weight <= 0) {
-                    Constants.LOG.debug("[{}] entry #{} '{}' skipped: weight={} (must be > 0)",
-                            eventId, i, entry.id, entry.weight);
-                    continue;
-                }
-
-                ResourceLocation id = ResourceLocation.tryParse(entry.id);
-                if (id == null) {
-                    Constants.LOG.warn("[{}] entry #{} skipped: invalid id '{}'",
-                            eventId, i, entry.id);
-                    continue;
-                }
-
-                Optional<EntityType<?>> maybeType = BuiltInRegistries.ENTITY_TYPE.getOptional(id);
-                if (maybeType.isEmpty()) {
-                    Constants.LOG.debug("[{}] entry #{} skipped: entity type '{}' not registered (mod missing?)",
-                            eventId, i, id);
-                    filtered++;
-                    continue;
-                }
-
-                CompoundTag nbt;
-                if (entry.nbt != null && !entry.nbt.isBlank()) {
-                    try {
-                        nbt = TagParser.parseTag(entry.nbt);
-                    } catch (Exception e) {
-                        Constants.LOG.warn("[{}] entry #{} '{}' skipped: malformed SNBT ({})",
-                                eventId, i, id, e.getMessage());
-                        continue;
-                    }
-                } else {
-                    nbt = new CompoundTag();
-                }
-
-                String missingRef = NbtModFilter.findMissingModRef(nbt);
-                if (missingRef != null) {
-                    Constants.LOG.debug("[{}] entry #{} '{}' skipped: NBT references unknown mod resource '{}'",
-                            eventId, i, id, missingRef);
-                    filtered++;
-                    continue;
-                }
-
-                ResolvedMob resolvedMob = new ResolvedMob(id, maybeType.get(), nbt, entry.label);
-                resolved.add(new Entry(resolvedMob, entry.weight));
+            if (entry.weight() <= 0) {
+                Constants.LOG.debug("[{}] entry #{} '{}' skipped: weight={} (must be > 0)",
+                        eventId, i, entry.id(), entry.weight());
+                continue;
             }
+
+            ResourceLocation id = entry.id();
+
+            Optional<EntityType<?>> maybeType = BuiltInRegistries.ENTITY_TYPE.getOptional(id);
+            if (maybeType.isEmpty()) {
+                Constants.LOG.debug("[{}] entry #{} skipped: entity type '{}' not registered (mod missing?)",
+                        eventId, i, id);
+                filtered++;
+                continue;
+            }
+
+            CompoundTag nbt = entry.nbtOrEmpty();
+
+            String missingRef = NbtModFilter.findMissingModRef(nbt);
+            if (missingRef != null) {
+                Constants.LOG.debug("[{}] entry #{} '{}' skipped: NBT references unknown mod resource '{}'",
+                        eventId, i, id, missingRef);
+                filtered++;
+                continue;
+            }
+
+            ResolvedMob resolvedMob = new ResolvedMob(id, maybeType.get(), nbt, entry.label().orElse(null));
+            resolved.add(new Entry(resolvedMob, entry.weight()));
         }
 
         int kept = resolved.size();

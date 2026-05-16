@@ -27,9 +27,6 @@
     "yacl3.config.encounters:config.lightningOverchargeGroupCohesionRadius": "Rayon de cohésion",
     "yacl3.config.encounters:config.lightningOverchargeGroupCohesionRadius.desc": "Distance en blocs au-delà de laquelle un suivant est rappelé vers son leader.",
 
-    "yacl3.config.encounters:config.lightningOverchargeMobs": "Pool de mobs",
-    "yacl3.config.encounters:config.lightningOverchargeMobs.desc": "Pool pondéré de mobs pouvant apparaître pendant l'évènement. Cliquez une entrée pour éditer son id, son poids, son label et son SNBT.",
-
     "yacl3.config.encounters:config.netherPortalInvasionEnabled": "Activé",
     "yacl3.config.encounters:config.netherPortalInvasionEnabled.desc": "Interrupteur principal de l'évènement d'invasion de portail du Nether. Désactivé, aucun portail ne déclenchera jamais d'invasion.",
 
@@ -66,9 +63,6 @@
     "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionRadius": "Rayon de cohésion",
     "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionRadius.desc": "Distance en blocs au-delà de laquelle un membre de vague est rappelé vers son leader.",
 
-    "yacl3.config.encounters:config.netherPortalInvasionMobs": "Pool de mobs",
-    "yacl3.config.encounters:config.netherPortalInvasionMobs.desc": "Pool pondéré de mobs pouvant sortir du portail pendant une invasion. Cliquez une entrée pour éditer son id, son poids, son label et son SNBT.",
-
     "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled": "Barrage de bombes de magma",
     "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled.desc": "Quand activé et qu'Iron's Spells 'n Spellbooks est chargé, le portail lance périodiquement des sorts Magma Bomb pendant l'invasion. Les bombes suivent une trajectoire en cloche et explosent à l'impact en laissant un champ de feu. Le niveau du sort augmente de +1 par vague (plafonné à 8). Sans effet si le mod est absent.",
 
@@ -103,23 +97,5 @@
     "yacl3.config.encounters:config.patrolSkirmishMobsPerSide.desc": "Nombre de mobs apparaissant par camp au démarrage. L'échelle skirmish (4-6) se lit mieux qu'une bataille rangée.",
 
     "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide": "Chance de caravane par camp",
-    "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide.desc": "Probabilité qu'une caravane (un porteur menant un animal de bât chargé d'un coffre) accompagne chaque camp. Lancée indépendamment par camp.",
-
-    "yacl3.config.encounters:config.patrolSkirmishVillagerMobs": "Pool du camp villageois",
-    "yacl3.config.encounters:config.patrolSkirmishVillagerMobs.desc": "Pool pondéré des mobs pouvant apparaître côté villageois. Cliquez une entrée pour éditer son id, son poids, son label et son SNBT.",
-
-    "yacl3.config.encounters:config.patrolSkirmishIllagerMobs": "Pool du camp illager",
-    "yacl3.config.encounters:config.patrolSkirmishIllagerMobs.desc": "Pool pondéré des mobs pouvant apparaître côté illager. Cliquez une entrée pour éditer son id, son poids, son label et son SNBT.",
-
-    "encounters.config.weightedMob.empty": "(entrée vide)",
-    "encounters.config.editMob.title": "Édition d'une entrée mob",
-    "encounters.config.editMob.category": "Entrée mob",
-    "encounters.config.editMob.id": "ID de l'entité",
-    "encounters.config.editMob.id.desc": "Identifiant namespaced de l'entité, par ex. minecraft:zombie ou modid:custom_entity.",
-    "encounters.config.editMob.weight": "Poids",
-    "encounters.config.editMob.weight.desc": "Poids relatif dans le pool. Plus élevé = plus fréquent.",
-    "encounters.config.editMob.label": "Label",
-    "encounters.config.editMob.label.desc": "Nom affiché dans la liste GUI et les logs d'évènement. Laisser vide pour n'afficher que l'id.",
-    "encounters.config.editMob.nbt": "SNBT",
-    "encounters.config.editMob.nbt.desc": "SNBT optionnel appliqué au spawn, identique à la syntaxe /summon. Laisser vide pour le comportement par défaut du mob."
+    "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide.desc": "Probabilité qu'une caravane (un porteur menant un animal de bât chargé d'un coffre) accompagne chaque camp. Lancée indépendamment par camp."
 }

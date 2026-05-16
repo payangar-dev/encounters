@@ -27,9 +27,6 @@
     "yacl3.config.encounters:config.lightningOverchargeGroupCohesionRadius": "Cohesion Radius",
     "yacl3.config.encounters:config.lightningOverchargeGroupCohesionRadius.desc": "Distance in blocks beyond which a follower is pulled back toward its leader.",
 
-    "yacl3.config.encounters:config.lightningOverchargeMobs": "Mob Pool",
-    "yacl3.config.encounters:config.lightningOverchargeMobs.desc": "Weighted pool of mobs that may spawn during the event. Click an entry to edit its id, weight, label and SNBT.",
-
     "yacl3.config.encounters:config.netherPortalInvasionEnabled": "Enabled",
     "yacl3.config.encounters:config.netherPortalInvasionEnabled.desc": "Master toggle for the nether portal invasion event. When disabled, no portal will ever trigger an invasion.",
 
@@ -66,9 +63,6 @@
     "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionRadius": "Cohesion Radius",
     "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionRadius.desc": "Distance in blocks beyond which a wave member is pulled back toward its leader.",
 
-    "yacl3.config.encounters:config.netherPortalInvasionMobs": "Mob Pool",
-    "yacl3.config.encounters:config.netherPortalInvasionMobs.desc": "Weighted pool of mobs that may spawn from the portal during an invasion. Click an entry to edit its id, weight, label and SNBT.",
-
     "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled": "Magma Bomb Barrage",
     "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled.desc": "When enabled and Iron's Spells 'n Spellbooks is loaded, the portal periodically lobs Magma Bomb spells out of the gateway during the invasion. The bombs follow a ballistic arc and explode on impact, leaving a fire field. Spell level scales +1 per wave (capped at 8). No effect when the mod is absent.",
 
@@ -103,23 +97,5 @@
     "yacl3.config.encounters:config.patrolSkirmishMobsPerSide.desc": "Number of mobs spawned per faction at skirmish start. Skirmish-scale (4-6) reads better than full-scale battles.",
 
     "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide": "Caravan Chance Per Side",
-    "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide.desc": "Probability that a caravan (a carrier leading a chest-bearing pack animal) accompanies each faction. Rolled independently per side.",
-
-    "yacl3.config.encounters:config.patrolSkirmishVillagerMobs": "Villager Faction Pool",
-    "yacl3.config.encounters:config.patrolSkirmishVillagerMobs.desc": "Weighted pool of mobs that may spawn on the villager side. Click an entry to edit its id, weight, label and SNBT.",
-
-    "yacl3.config.encounters:config.patrolSkirmishIllagerMobs": "Illager Faction Pool",
-    "yacl3.config.encounters:config.patrolSkirmishIllagerMobs.desc": "Weighted pool of mobs that may spawn on the illager side. Click an entry to edit its id, weight, label and SNBT.",
-
-    "encounters.config.weightedMob.empty": "(empty entry)",
-    "encounters.config.editMob.title": "Edit Mob Entry",
-    "encounters.config.editMob.category": "Mob Entry",
-    "encounters.config.editMob.id": "Entity ID",
-    "encounters.config.editMob.id.desc": "Namespaced entity id, e.g. minecraft:zombie or modid:custom_entity.",
-    "encounters.config.editMob.weight": "Weight",
-    "encounters.config.editMob.weight.desc": "Relative weight in the pool. Higher = more frequent.",
-    "encounters.config.editMob.label": "Label",
-    "encounters.config.editMob.label.desc": "Optional display name shown in the GUI list and event logs. Leave empty to show only the id.",
-    "encounters.config.editMob.nbt": "SNBT",
-    "encounters.config.editMob.nbt.desc": "Optional SNBT string applied at spawn, identical to the /summon syntax. Leave empty for default mob behaviour."
+    "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide.desc": "Probability that a caravan (a carrier leading a chest-bearing pack animal) accompanies each faction. Rolled independently per side."
 }

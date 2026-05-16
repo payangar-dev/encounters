@@ -1,9 +1,12 @@
 package com.payangar.encounters.platform;
 
+import com.payangar.encounters.Constants;
 import com.payangar.encounters.platform.services.EntityInteractListener;
 import com.payangar.encounters.platform.services.IPlatformHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Mob;
@@ -13,6 +16,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
@@ -76,6 +80,17 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
                 event.setCanceled(true);
                 event.setCancellationResult(result);
             }
+        });
+    }
+
+    @Override
+    public void registerReloadListener(ResourceLocation id, PreparableReloadListener listener) {
+        // NeoForge fires AddReloadListenerEvent once per server start (and on /reload).
+        // The id is not consumed by the platform but logged so reload ordering issues
+        // can be traced back to a specific module if they ever surface.
+        NeoForge.EVENT_BUS.addListener((AddReloadListenerEvent event) -> {
+            event.addListener(listener);
+            Constants.LOG.debug("Registered reload listener '{}' on NeoForge", id);
         });
     }
 }

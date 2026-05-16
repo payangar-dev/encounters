@@ -1,0 +1,15 @@
+{
+  "entries": [
+    {
+      "id": "minecraft:iron_golem",
+      "weight": 30,
+      "label": "Iron Golem",
+      "nbt": { "Tags": ["encounters_high_cost"] }
+    },
+    {
+      "id": "guardvillagers:guard",
+      "weight": 30,
+      "label": "Village Guard"
+    }
+  ]
+}
