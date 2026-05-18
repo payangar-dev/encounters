@@ -33,7 +33,7 @@
     "text.autoconfig.encounters.option.portal.scanner.triggerChance": "Trigger Chance",
     "text.autoconfig.encounters.option.portal.scanner.triggerChance.@Tooltip": "Probability that an eligible portal triggers an invasion on a given scan. 0 = never, 1 = every scan.",
     "text.autoconfig.encounters.option.portal.scanner.scanIntervalTicks": "Scan Interval (ticks)",
-    "text.autoconfig.encounters.option.portal.scanner.scanIntervalTicks.@Tooltip": "Scan cadence in server ticks (100 = 5 s).",
+    "text.autoconfig.encounters.option.portal.scanner.scanIntervalTicks.@Tooltip": "Scan cadence in server ticks (600 = 30 s).",
     "text.autoconfig.encounters.option.portal.concurrency": "Concurrency",
     "text.autoconfig.encounters.option.portal.concurrency.maxConcurrent": "Max Concurrent",
     "text.autoconfig.encounters.option.portal.concurrency.maxConcurrent.@Tooltip": "Maximum invasions running simultaneously on a level.",

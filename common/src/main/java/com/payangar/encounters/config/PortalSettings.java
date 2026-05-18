@@ -48,7 +48,7 @@ public class PortalSettings implements ConfigData {
     private static ScannerSettings scannerDefaults() {
         ScannerSettings s = new ScannerSettings();
         s.triggerChance = 0.05;
-        s.scanIntervalTicks = 100;
+        s.scanIntervalTicks = 600;
         return s;
     }
 
