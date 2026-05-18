@@ -23,8 +23,8 @@ public final class Encounters {
         Services.PLATFORM.registerReloadListener(EncounterPoolsManager.ID, EncounterPoolsManager.getInstance());
         CinematicTicker.initialize();
         GroupCohesionTicker.initialize();
-        PortalScanner.initialize();
-        SkirmishScanner.initialize();
+        PortalScanner.INSTANCE.initialize();
+        SkirmishScanner.INSTANCE.initialize();
         ReputationHook.install();
         registerLifecycleHooks();
     }
@@ -40,15 +40,15 @@ public final class Encounters {
             CinematicTicker.clear();
             GroupCohesionTicker.clear();
             ActiveEncounterTracker.clear();
-            NetherPortalInvasionEvent.releaseAll();
-            PatrolSkirmishEvent.releaseAll();
-            SkirmishScanner.clear();
+            SkirmishScanner.INSTANCE.clear();
+            PortalScanner.INSTANCE.clear();
         });
         Services.PLATFORM.registerServerLevelUnloadListener(level -> {
             CinematicTicker.clearLevel(level);
             GroupCohesionTicker.clearLevel(level);
             ActiveEncounterTracker.clearLevel(level);
-            SkirmishScanner.clearLevel(level);
+            SkirmishScanner.INSTANCE.clearLevel(level);
+            PortalScanner.INSTANCE.clearLevel(level);
         });
     }
 

@@ -36,12 +36,12 @@ repositories {
         filter { includeGroup('org.parchmentmc.data') }
     }
     maven {
-        name = 'Isxander'
-        url = 'https://maven.isxander.dev/releases'
-    }
-    maven {
         name = 'Redspace'
         url = 'https://code.redspace.io/releases'
+    }
+    maven {
+        name = 'Shedaniel'
+        url = 'https://maven.shedaniel.me/'
     }
 }
 
@@ -94,7 +94,7 @@ processResources {
             'neoforge_loader_version_range': neoforge_loader_version_range,
             'credits'                      : credits,
             'java_version'                 : java_version,
-            'yacl_version'                 : yacl_version
+            'cloth_config_version'         : cloth_config_version
     ]
 
     filesMatching(['pack.mcmeta', 'fabric.mod.json', 'META-INF/neoforge.mods.toml', '*.mixins.json']) {

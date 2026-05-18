@@ -17,10 +17,9 @@ import java.util.List;
  * mod-presence filtering logic in one place.</p>
  *
  * <p>Pools live as datapack JSON instead of inline SNBT-string inside the
- * YACL config: this yields hot-reload via {@code /reload}, third-party
- * overrides via datapacks, and a JSON layout free of the
- * {@code quilt-parsers 0.2.x} write-time escape bug that previously
- * corrupted the config on every save.</p>
+ * config: this yields hot-reload via {@code /reload}, third-party overrides
+ * via datapacks, and a JSON layout free of any write-time escape bugs in
+ * config-file parsers.</p>
  */
 public record SpawnPool(List<SpawnEntry> entries) {
 

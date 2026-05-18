@@ -3,7 +3,7 @@ package com.payangar.encounters.event.skirmish;
 import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.EncountersConfig;
 import com.payangar.encounters.event.ActiveEncounterTracker;
-import com.payangar.encounters.platform.Services;
+import com.payangar.encounters.event.EncounterScanner;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -13,7 +13,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
@@ -27,23 +26,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Periodic scanner that drives natural triggering of patrol skirmishes.
+ * Inherits the common check chain from {@link EncounterScanner}; this class
+ * carries the event-specific gates (day-only, biome whitelist, clearing
+ * footprint), the candidate picking around a player, and the audio-tease
+ * commit strategy.
  *
- * <p>Every {@code patrolSkirmishScanIntervalTicks} ticks (per overworld
- * level), the scanner picks a random alive player, rolls a candidate site
- * in a 48-100 block ring around them, validates the site (biome whitelist
- * + clearing footprint + min distance to other active skirmishes), and
- * fires the trigger chance roll. Successful candidates are queued as a
- * {@link PendingTease} for {@link #TEASE_DURATION_TICKS} ticks during
- * which periodic combat sounds are emitted at the site — only when that
- * window elapses is the actual skirmish spawned via
- * {@link PatrolSkirmishEvent#forceTrigger}.</p>
- *
- * <p>The concurrency cap and post-skirmish cooldown are enforced upstream
- * by {@link PatrolSkirmishEvent#canScannerTrigger}. While a tease is in
- * flight on a given level, the scanner won't queue another to avoid
- * stacked spawns.</p>
+ * <p>Once a candidate is validated, the spawn isn't immediate — a
+ * {@link PendingTease} is queued for {@link #TEASE_DURATION_TICKS} ticks
+ * during which periodic combat sounds are emitted at the site. The actual
+ * skirmish spawn fires via {@link PatrolSkirmishEvent#forceTrigger} only
+ * when that window elapses. While a tease is in flight on a given level,
+ * the scanner does not queue another (see {@link #preTick}).</p>
  */
-public final class SkirmishScanner {
+public final class SkirmishScanner extends EncounterScanner {
+
+    public static final SkirmishScanner INSTANCE = new SkirmishScanner();
 
     private static final int CANDIDATE_MIN_DIST = 48;
     private static final int CANDIDATE_MAX_DIST = 100;
@@ -82,8 +79,6 @@ public final class SkirmishScanner {
     /** Blocks of vertical air required above the anchor (large mobs like Ravager need clearance). */
     private static final int CLEARING_HEADROOM = 4;
 
-    private static boolean registered = false;
-
     /** IDs we already warned about (invalid biome entries in config). Avoids log spam. */
     private static final Set<String> warnedInvalidBiomes = ConcurrentHashMap.newKeySet();
 
@@ -92,7 +87,7 @@ public final class SkirmishScanner {
      * list, emitting periodic combat sounds, then turns into a real spawn
      * when the {@code spawnAtTick} timestamp is reached.
      */
-    private static final List<PendingTease> pendingTeases = new CopyOnWriteArrayList<>();
+    private final List<PendingTease> pendingTeases = new CopyOnWriteArrayList<>();
 
     private static final class PendingTease {
         final ServerLevel level;
@@ -109,71 +104,107 @@ public final class SkirmishScanner {
         }
     }
 
-    private SkirmishScanner() {}
-
-    public static synchronized void initialize() {
-        if (registered) return;
-        Services.PLATFORM.registerServerLevelTickListener(SkirmishScanner::onLevelTick);
-        registered = true;
+    private SkirmishScanner() {
+        super(PatrolSkirmishEvent.ID);
     }
 
-    /** Drops every pending tease. Used at server stop. */
-    public static void clear() {
-        pendingTeases.clear();
-    }
-
-    /** Drops every pending tease bound to {@code level}. Used at level unload. */
-    public static void clearLevel(ServerLevel level) {
-        pendingTeases.removeIf(t -> t.level == level);
-    }
-
-    private static void onLevelTick(ServerLevel level) {
-        if (level.dimension() != Level.OVERWORLD) return;
+    @Override
+    protected boolean preTick(ServerLevel level) {
         processPendingTeases(level);
-        if (hasPendingTease(level)) return; // don't queue another while one is in flight
-        EncountersConfig config = EncountersConfig.get();
-        if (!config.patrolSkirmishEnabled) return;
-        long interval = Math.max(20, config.patrolSkirmishScanIntervalTicks);
-        if (level.getGameTime() % interval != 0) return;
-        if (config.patrolSkirmishTriggerChance <= 0.0) return;
-        // Early-return on concurrency cap + cooldown before doing any per-player work.
-        if (!PatrolSkirmishEvent.canScannerTrigger(level, config)) return;
-        if (config.patrolSkirmishDayOnly && !level.isDay()) return;
+        // Don't queue another while one is in flight on this level.
+        return !hasPendingTease(level);
+    }
 
+    @Override
+    protected boolean enabled(EncountersConfig config) {
+        return config.skirmish.enabled;
+    }
+
+    @Override
+    protected int scanIntervalTicks(EncountersConfig config) {
+        return config.skirmish.scanner.scanIntervalTicks;
+    }
+
+    @Override
+    protected double triggerChance(EncountersConfig config) {
+        return config.skirmish.scanner.triggerChance;
+    }
+
+    @Override
+    protected boolean canTrigger(ServerLevel level, EncountersConfig config) {
+        int active = ActiveEncounterTracker.activeCount(level, eventId);
+        if (active >= config.skirmish.concurrency.maxConcurrent) {
+            Constants.LOG.debug("[{}] scanner skipped: max concurrent reached ({}/{})",
+                    eventId, active, config.skirmish.concurrency.maxConcurrent);
+            return false;
+        }
+        if (!ActiveEncounterTracker.cooldownElapsed(level, eventId, config.skirmish.cooldown.cooldownTicks)) {
+            Constants.LOG.debug("[{}] scanner skipped: post-event cooldown still active", eventId);
+            return false;
+        }
+        if (config.skirmish.dayOnly && !level.isDay()) {
+            Constants.LOG.debug("[{}] scanner skipped: dayOnly active but it is night", eventId);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    protected void scan(ServerLevel level, EncountersConfig config) {
         List<? extends ServerPlayer> players = level.players();
-        if (players.isEmpty()) return;
-        RandomSource rng = level.getRandom();
+        if (players.isEmpty()) {
+            Constants.LOG.debug("[{}] scanner skipped: no players in level", eventId);
+            return;
+        }
 
+        RandomSource rng = level.getRandom();
         // One candidate per scan, attached to a random player. Keeps the cost
         // bounded regardless of player count; rate of skirmishes scales with
         // the configured scan interval and trigger chance, not population.
         ServerPlayer player = players.get(rng.nextInt(players.size()));
-        if (!player.isAlive() || player.isSpectator()) return;
+        if (!player.isAlive() || player.isSpectator()) {
+            Constants.LOG.debug("[{}] scanner skipped: picked player not alive or spectating", eventId);
+            return;
+        }
 
         BlockPos candidate = pickCandidateSite(level, player, rng, config);
-        if (candidate == null) return;
+        if (candidate == null) return; // pickCandidateSite logs its own reason
 
-        if (rng.nextDouble() >= config.patrolSkirmishTriggerChance) return;
+        if (rng.nextDouble() >= config.skirmish.scanner.triggerChance) {
+            Constants.LOG.debug("[{}] scanner skipped at ({}, {}, {}): chance roll missed",
+                    eventId, candidate.getX(), candidate.getY(), candidate.getZ());
+            return;
+        }
 
         enqueueTease(level, candidate, rng);
     }
 
-    // ---------- Audio tease ----------
-
-    private static void enqueueTease(ServerLevel level, BlockPos pos, RandomSource rng) {
-        pendingTeases.add(new PendingTease(level, pos, level.getGameTime(), rng));
-        Constants.LOG.info("[{}] tease scheduled at ({}, {}, {}) — spawn in {} ticks",
-                PatrolSkirmishEvent.ID, pos.getX(), pos.getY(), pos.getZ(), TEASE_DURATION_TICKS);
+    @Override
+    public void clear() {
+        pendingTeases.clear();
     }
 
-    private static boolean hasPendingTease(ServerLevel level) {
+    @Override
+    public void clearLevel(ServerLevel level) {
+        pendingTeases.removeIf(t -> t.level == level);
+    }
+
+    // ---------- Audio tease ----------
+
+    private void enqueueTease(ServerLevel level, BlockPos pos, RandomSource rng) {
+        pendingTeases.add(new PendingTease(level, pos, level.getGameTime(), rng));
+        Constants.LOG.info("[{}] tease scheduled at ({}, {}, {}) — spawn in {} ticks",
+                eventId, pos.getX(), pos.getY(), pos.getZ(), TEASE_DURATION_TICKS);
+    }
+
+    private boolean hasPendingTease(ServerLevel level) {
         for (PendingTease t : pendingTeases) {
             if (t.level == level) return true;
         }
         return false;
     }
 
-    private static void processPendingTeases(ServerLevel level) {
+    private void processPendingTeases(ServerLevel level) {
         if (pendingTeases.isEmpty()) return;
         long now = level.getGameTime();
         Iterator<PendingTease> it = pendingTeases.iterator();
@@ -185,7 +216,7 @@ public final class SkirmishScanner {
                 boolean started = PatrolSkirmishEvent.forceTrigger(level, Vec3.atBottomCenterOf(t.pos));
                 if (!started) {
                     Constants.LOG.warn("[{}] tease completed at ({}, {}, {}) but spawn was refused",
-                            PatrolSkirmishEvent.ID, t.pos.getX(), t.pos.getY(), t.pos.getZ());
+                            eventId, t.pos.getX(), t.pos.getY(), t.pos.getZ());
                 }
                 continue;
             }
@@ -206,8 +237,10 @@ public final class SkirmishScanner {
         level.playSound(null, pos, sound, SoundSource.HOSTILE, TEASE_VOLUME, pitch);
     }
 
-    private static BlockPos pickCandidateSite(ServerLevel level, ServerPlayer player,
-                                              RandomSource rng, EncountersConfig config) {
+    // ---------- Candidate validation ----------
+
+    private BlockPos pickCandidateSite(ServerLevel level, ServerPlayer player,
+                                       RandomSource rng, EncountersConfig config) {
         double angle = rng.nextDouble() * Math.PI * 2;
         int distRange = CANDIDATE_MAX_DIST - CANDIDATE_MIN_DIST + 1;
         double dist = CANDIDATE_MIN_DIST + rng.nextInt(distRange);
@@ -215,21 +248,37 @@ public final class SkirmishScanner {
         int x = playerPos.getX() + (int) Math.round(Math.cos(angle) * dist);
         int z = playerPos.getZ() + (int) Math.round(Math.sin(angle) * dist);
 
-        if (!level.hasChunk(x >> 4, z >> 4)) return null;
+        if (!level.hasChunk(x >> 4, z >> 4)) {
+            Constants.LOG.debug("[{}] scanner skipped at ({}, ?, {}): candidate chunk not loaded",
+                    eventId, x, z);
+            return null;
+        }
 
         int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
         BlockPos candidate = new BlockPos(x, y, z);
         Vec3 candidateVec = Vec3.atCenterOf(candidate);
 
-        if (ActiveEncounterTracker.nearestActiveDistance(level, PatrolSkirmishEvent.ID, candidateVec)
-                < config.patrolSkirmishMinDistanceBetween) return null;
-        if (!isAllowedBiome(level, candidate, config)) return null;
-        if (!isClearing(level, x, y, z)) return null;
+        if (ActiveEncounterTracker.nearestActiveDistance(level, eventId, candidateVec)
+                < config.skirmish.concurrency.minDistanceBetween) {
+            Constants.LOG.debug("[{}] scanner skipped at ({}, {}, {}): too close to another active skirmish",
+                    eventId, x, y, z);
+            return null;
+        }
+        if (!isAllowedBiome(level, candidate, config)) {
+            Constants.LOG.debug("[{}] scanner skipped at ({}, {}, {}): biome not in allowed list",
+                    eventId, x, y, z);
+            return null;
+        }
+        if (!isClearing(level, x, y, z)) {
+            Constants.LOG.debug("[{}] scanner skipped at ({}, {}, {}): clearing footprint invalid",
+                    eventId, x, y, z);
+            return null;
+        }
         return candidate;
     }
 
-    private static boolean isAllowedBiome(ServerLevel level, BlockPos pos, EncountersConfig config) {
-        List<String> allowed = config.patrolSkirmishBiomes;
+    private boolean isAllowedBiome(ServerLevel level, BlockPos pos, EncountersConfig config) {
+        List<String> allowed = config.skirmish.biomes;
         if (allowed.isEmpty()) return false;
         Holder<Biome> holder = level.getBiome(pos);
         Optional<ResourceLocation> biomeId = holder.unwrapKey().map(k -> k.location());
@@ -247,7 +296,7 @@ public final class SkirmishScanner {
         return false;
     }
 
-    private static boolean isClearing(ServerLevel level, int cx, int cy, int cz) {
+    private boolean isClearing(ServerLevel level, int cx, int cy, int cz) {
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         for (int dx = -CLEARING_RADIUS; dx < CLEARING_RADIUS; dx++) {
             for (int dz = -CLEARING_RADIUS; dz < CLEARING_RADIUS; dz++) {
@@ -266,10 +315,10 @@ public final class SkirmishScanner {
         return true;
     }
 
-    private static void warnOnceInvalidBiome(String id) {
+    private void warnOnceInvalidBiome(String id) {
         if (warnedInvalidBiomes.add(id)) {
             Constants.LOG.warn("[{}] invalid biome id in config: '{}' — entry ignored",
-                    PatrolSkirmishEvent.ID, id);
+                    eventId, id);
         }
     }
 }

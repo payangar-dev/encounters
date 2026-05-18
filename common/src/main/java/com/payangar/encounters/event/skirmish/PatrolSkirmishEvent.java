@@ -17,12 +17,12 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Coordinates the patrol_skirmish event — a bilateral encounter between a
- * villager-side patrol (golems, guards) and an illager-side patrol.
- *
- * <p>This class currently exposes only the event identity and roster caches.
- * Trigger logic, multi-instance bookkeeping and the cinematic reward are
- * built up in later steps.</p>
+ * Identity, roster caches, reward loot table and force-trigger entry point
+ * for the patrol skirmish event. All scanner-driven gating (enabled, interval,
+ * trigger chance, concurrency cap, post-event cooldown, day-only, biome,
+ * clearing footprint) lives in {@link SkirmishScanner}; the post-event
+ * cooldown timestamp is owned by {@link ActiveEncounterTracker}. This class
+ * only holds what is intrinsically patrol-skirmish-specific.
  *
  * <p>Two rosters are cached separately because each faction draws from its
  * own mob pool. Both invalidate together on config reload via the single
@@ -60,15 +60,6 @@ public final class PatrolSkirmishEvent {
     private static MobRoster cachedIllagerRoster;
     private static SpawnPool cachedIllagerPool;
 
-    /**
-     * Server tick at which the last skirmish on any level ended. Combined
-     * with {@link EncountersConfig#patrolSkirmishCooldownTicks} to enforce a
-     * world-wide cooldown between skirmishes. Stays at {@link Long#MIN_VALUE}
-     * until the first skirmish ends, so the cooldown is trivially satisfied
-     * at server start.
-     */
-    private static volatile long lastSkirmishEndTick = Long.MIN_VALUE;
-
     private PatrolSkirmishEvent() {}
 
     public static MobRoster villagerRoster() {
@@ -97,22 +88,14 @@ public final class PatrolSkirmishEvent {
     }
 
     /**
-     * Whether the periodic scanner is allowed to start a skirmish on
-     * {@code level} right now. Gates on the per-level concurrency cap and
-     * the world-wide post-skirmish cooldown.
-     */
-    public static boolean canScannerTrigger(ServerLevel level, EncountersConfig config) {
-        if (ActiveEncounterTracker.activeCount(level, ID) >= config.patrolSkirmishMaxConcurrent) return false;
-        long now = level.getGameTime();
-        long cooldown = config.patrolSkirmishCooldownTicks;
-        return (now - lastSkirmishEndTick) >= cooldown;
-    }
-
-    /**
-     * Starts a skirmish anchored at {@code pos} on {@code level}. Respects the
-     * dimension and roster sanity checks plus the per-level concurrency cap;
-     * bypasses the post-skirmish cooldown so the debug command stays usable
-     * during testing.
+     * Starts a skirmish anchored at {@code pos} on {@code level}. Used by the
+     * debug command (bypasses every scanner gate) and by {@link SkirmishScanner}
+     * once its audio tease elapses (the scanner applies the gates upstream).
+     *
+     * <p>Sanity checks kept here for resilience to both call paths: overworld
+     * dimension, both rosters non-empty, concurrency cap. The minimum-distance
+     * gate is intentionally <em>not</em> rechecked — the debug command may
+     * force two adjacent skirmishes for testing.</p>
      *
      * @return {@code true} if the skirmish was started, {@code false} if
      *         blocked by a sanity check (see logs for the reason).
@@ -132,9 +115,9 @@ public final class PatrolSkirmishEvent {
             return false;
         }
         int activeCount = ActiveEncounterTracker.activeCount(level, ID);
-        if (activeCount >= config.patrolSkirmishMaxConcurrent) {
+        if (activeCount >= config.skirmish.concurrency.maxConcurrent) {
             Constants.LOG.info("[{}] refused: max concurrent reached ({}/{})",
-                    ID, activeCount, config.patrolSkirmishMaxConcurrent);
+                    ID, activeCount, config.skirmish.concurrency.maxConcurrent);
             return false;
         }
 
@@ -145,21 +128,5 @@ public final class PatrolSkirmishEvent {
         Constants.LOG.info("[{}] skirmish started at ({}, {}, {})",
                 ID, anchor.getX(), anchor.getY(), anchor.getZ());
         return true;
-    }
-
-    /**
-     * Called by {@link PatrolSkirmish} when it finishes or is abandoned.
-     * Drops the tracker entry and records the cooldown timestamp so the next
-     * scanner trigger waits {@link EncountersConfig#patrolSkirmishCooldownTicks}.
-     */
-    static synchronized void releaseSkirmish(PatrolSkirmish skirmish) {
-        ActiveEncounterTracker.unregister(skirmish);
-        lastSkirmishEndTick = skirmish.level().getGameTime();
-        Constants.LOG.info("[{}] skirmish released at tick {}", ID, lastSkirmishEndTick);
-    }
-
-    /** Drops the cooldown timestamp. Used at server stop. */
-    public static void releaseAll() {
-        lastSkirmishEndTick = Long.MIN_VALUE;
     }
 }

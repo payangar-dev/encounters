@@ -1,101 +1,88 @@
 {
     "encounters.mod.name": "Encounters",
 
-    "yacl3.config.encounters:config.category.general": "Général",
-    "yacl3.config.encounters:config.category.lightning_overcharge": "Éclair surchargé",
-    "yacl3.config.encounters:config.category.nether_portal_invasion": "Invasion de portail du Nether",
-    "yacl3.config.encounters:config.category.patrol_skirmish": "Escarmouche de patrouille",
+    "text.autoconfig.encounters.title": "Encounters",
 
-    "yacl3.config.encounters:config.mobsDropEquipment": "Les mobs peuvent lâcher leur équipement",
-    "yacl3.config.encounters:config.mobsDropEquipment.desc": "Quand activé, les mobs apparus lors d'un évènement peuvent lâcher les armes et armures avec lesquelles ils ont spawn. Désactivé par défaut : leur équipement est toujours conservé.",
+    "text.autoconfig.encounters.category.general": "Général",
+    "text.autoconfig.encounters.category.lightning": "Éclair surchargé",
+    "text.autoconfig.encounters.category.portal": "Invasion de portail du Nether",
+    "text.autoconfig.encounters.category.skirmish": "Escarmouche de patrouille",
 
-    "yacl3.config.encounters:config.lightningOverchargeEnabled": "Activé",
-    "yacl3.config.encounters:config.lightningOverchargeEnabled.desc": "Interrupteur principal de l'évènement éclair surchargé. Désactivé, les éclairs d'orage naturels se comportent normalement.",
+    "text.autoconfig.encounters.option.general.mobsDropEquipment": "Les mobs peuvent lâcher leur équipement",
+    "text.autoconfig.encounters.option.general.mobsDropEquipment.@Tooltip": "Quand activé, les mobs des évènements peuvent lâcher l'équipement avec lequel ils sont apparus.",
+    "text.autoconfig.encounters.option.general.debug": "Journalisation détaillée",
+    "text.autoconfig.encounters.option.general.debug.@Tooltip": "Fait passer le logger « encounters » au niveau DEBUG pour afficher les raisons de rejet des scanners et le filtrage des rosters.",
 
-    "yacl3.config.encounters:config.lightningOverchargeChance": "Chance de déclenchement",
-    "yacl3.config.encounters:config.lightningOverchargeChance.desc": "Probabilité qu'un éclair d'orage naturel déclenche l'évènement. 0 = jamais, 1 = à chaque éclair.",
+    "text.autoconfig.encounters.option.lightning.enabled": "Activé",
+    "text.autoconfig.encounters.option.lightning.enabled.@Tooltip": "Interrupteur principal de l'évènement éclair surchargé.",
+    "text.autoconfig.encounters.option.lightning.chancePerBolt": "Chance de déclenchement",
+    "text.autoconfig.encounters.option.lightning.chancePerBolt.@Tooltip": "Probabilité qu'un éclair d'orage naturel déclenche l'évènement. 0 = jamais, 1 = à chaque éclair.",
+    "text.autoconfig.encounters.option.lightning.groupMin": "Taille du groupe (min)",
+    "text.autoconfig.encounters.option.lightning.groupMin.@Tooltip": "Nombre minimum de mobs apparaissant.",
+    "text.autoconfig.encounters.option.lightning.groupMax": "Taille du groupe (max)",
+    "text.autoconfig.encounters.option.lightning.groupMax.@Tooltip": "Nombre maximum de mobs apparaissant.",
+    "text.autoconfig.encounters.option.lightning.cohesion": "Cohésion de groupe",
+    "text.autoconfig.encounters.option.lightning.cohesion.enabled": "Activé",
+    "text.autoconfig.encounters.option.lightning.cohesion.enabled.@Tooltip": "Le premier mob agit comme leader, les autres se regroupent autour s'ils s'éloignent. Les suivants en combat ne sont pas dérangés.",
+    "text.autoconfig.encounters.option.lightning.cohesion.radius": "Rayon de cohésion",
+    "text.autoconfig.encounters.option.lightning.cohesion.radius.@Tooltip": "Distance (blocs) au-delà de laquelle un suivant est rappelé vers son leader.",
 
-    "yacl3.config.encounters:config.lightningOverchargeGroupMin": "Taille du groupe (min)",
-    "yacl3.config.encounters:config.lightningOverchargeGroupMin.desc": "Nombre minimum de mobs apparaissant lors du déclenchement.",
+    "text.autoconfig.encounters.option.portal.enabled": "Activé",
+    "text.autoconfig.encounters.option.portal.enabled.@Tooltip": "Interrupteur principal de l'évènement d'invasion de portail du Nether.",
+    "text.autoconfig.encounters.option.portal.scanner": "Scanner",
+    "text.autoconfig.encounters.option.portal.scanner.triggerChance": "Chance de déclenchement",
+    "text.autoconfig.encounters.option.portal.scanner.triggerChance.@Tooltip": "Probabilité qu'un portail éligible déclenche une invasion à un scan donné. 0 = jamais, 1 = à chaque scan.",
+    "text.autoconfig.encounters.option.portal.scanner.scanIntervalTicks": "Intervalle de scan (ticks)",
+    "text.autoconfig.encounters.option.portal.scanner.scanIntervalTicks.@Tooltip": "Cadence de scan en ticks (100 = 5 s).",
+    "text.autoconfig.encounters.option.portal.concurrency": "Concurrence",
+    "text.autoconfig.encounters.option.portal.concurrency.maxConcurrent": "Concurrence max",
+    "text.autoconfig.encounters.option.portal.concurrency.maxConcurrent.@Tooltip": "Nombre maximum d'invasions simultanées sur un niveau.",
+    "text.autoconfig.encounters.option.portal.concurrency.minDistanceBetween": "Distance min entre invasions",
+    "text.autoconfig.encounters.option.portal.concurrency.minDistanceBetween.@Tooltip": "Distance minimale (blocs) entre deux invasions simultanées.",
+    "text.autoconfig.encounters.option.portal.cooldown": "Cooldown post-événement",
+    "text.autoconfig.encounters.option.portal.cooldown.cooldownTicks": "Cooldown (ticks)",
+    "text.autoconfig.encounters.option.portal.cooldown.cooldownTicks.@Tooltip": "Délai après la fin d'une invasion avant qu'une autre puisse se déclencher (12000 = 10 min).",
+    "text.autoconfig.encounters.option.portal.cohesion": "Cohésion de vague",
+    "text.autoconfig.encounters.option.portal.cohesion.enabled": "Activé",
+    "text.autoconfig.encounters.option.portal.cohesion.enabled.@Tooltip": "Le premier mob de chaque vague agit comme leader, les autres se regroupent autour s'ils s'éloignent. Les suivants en combat et les passagers de monture ne sont pas dérangés.",
+    "text.autoconfig.encounters.option.portal.cohesion.radius": "Rayon de cohésion",
+    "text.autoconfig.encounters.option.portal.cohesion.radius.@Tooltip": "Distance (blocs) au-delà de laquelle un membre de vague est rappelé vers son leader.",
+    "text.autoconfig.encounters.option.portal.minWaves": "Nombre de vagues (min)",
+    "text.autoconfig.encounters.option.portal.minWaves.@Tooltip": "Nombre minimum de vagues par invasion.",
+    "text.autoconfig.encounters.option.portal.maxWaves": "Nombre de vagues (max)",
+    "text.autoconfig.encounters.option.portal.maxWaves.@Tooltip": "Nombre maximum de vagues par invasion.",
+    "text.autoconfig.encounters.option.portal.firstWaveSize": "Taille de la 1ʳᵉ vague",
+    "text.autoconfig.encounters.option.portal.firstWaveSize.@Tooltip": "Nombre de mobs apparaissant lors de la première vague.",
+    "text.autoconfig.encounters.option.portal.waveSizeStep": "Incrément par vague",
+    "text.autoconfig.encounters.option.portal.waveSizeStep.@Tooltip": "Mise à l'échelle linéaire : vague_n contient « tailleVague1 + (n-1) × incrément » mobs.",
+    "text.autoconfig.encounters.option.portal.magmaBombEnabled": "Barrage de bombes de magma",
+    "text.autoconfig.encounters.option.portal.magmaBombEnabled.@Tooltip": "Lance des sorts Magma Bomb d'Iron's Spells hors du portail pendant l'invasion. Niveau +1 par vague (plafonné à 8). Sans effet si Iron's Spells est absent.",
 
-    "yacl3.config.encounters:config.lightningOverchargeGroupMax": "Taille du groupe (max)",
-    "yacl3.config.encounters:config.lightningOverchargeGroupMax.desc": "Nombre maximum de mobs apparaissant lors du déclenchement.",
-
-    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionEnabled": "Cohésion de groupe",
-    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionEnabled.desc": "Quand activé, le premier mob d'un groupe apparu agit comme leader. Les autres se regroupent autour de lui dès qu'ils s'éloignent trop, afin que la rencontre reste cohérente. Les suivants déjà en combat ne sont pas dérangés.",
-
-    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionRadius": "Rayon de cohésion",
-    "yacl3.config.encounters:config.lightningOverchargeGroupCohesionRadius.desc": "Distance en blocs au-delà de laquelle un suivant est rappelé vers son leader.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionEnabled": "Activé",
-    "yacl3.config.encounters:config.netherPortalInvasionEnabled.desc": "Interrupteur principal de l'évènement d'invasion de portail du Nether. Désactivé, aucun portail ne déclenchera jamais d'invasion.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionScanIntervalTicks": "Intervalle de scan (ticks)",
-    "yacl3.config.encounters:config.netherPortalInvasionScanIntervalTicks.desc": "Fréquence à laquelle le mod scanne les chunks chargés à la recherche de portails du Nether actifs. 100 ticks = 5 secondes. Une valeur plus basse réagit plus vite mais coûte un peu plus.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionMaxConcurrent": "Invasions simultanées max",
-    "yacl3.config.encounters:config.netherPortalInvasionMaxConcurrent.desc": "Nombre maximum d'invasions de portail qui peuvent se dérouler simultanément sur le niveau. Une fois atteint, le scanner ignore les nouveaux déclenchements jusqu'à ce qu'une finisse.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionMinDistanceBetween": "Distance min entre invasions",
-    "yacl3.config.encounters:config.netherPortalInvasionMinDistanceBetween.desc": "Distance minimale en blocs entre deux invasions de portail simultanées. Empêche les regroupements quand des portails proches déclencheraient ensemble.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks": "Cooldown post-invasion (ticks)",
-    "yacl3.config.encounters:config.netherPortalInvasionPortalCooldownTicks.desc": "Délai minimum après la fin d'une invasion avant qu'une autre puisse se déclencher sur le niveau. 12000 ticks = 10 minutes.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionTriggerChance": "Chance de déclenchement",
-    "yacl3.config.encounters:config.netherPortalInvasionTriggerChance.desc": "Probabilité qu'un portail éligible déclenche une invasion à un scan donné. 0 = jamais, 1 = à chaque scan.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionMinWaves": "Nombre de vagues (min)",
-    "yacl3.config.encounters:config.netherPortalInvasionMinWaves.desc": "Nombre minimum de vagues par invasion.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionMaxWaves": "Nombre de vagues (max)",
-    "yacl3.config.encounters:config.netherPortalInvasionMaxWaves.desc": "Nombre maximum de vagues par invasion.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionFirstWaveSize": "Taille de la 1ʳᵉ vague",
-    "yacl3.config.encounters:config.netherPortalInvasionFirstWaveSize.desc": "Nombre de mobs apparaissant lors de la première vague.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionWaveSizeStep": "Incrément par vague",
-    "yacl3.config.encounters:config.netherPortalInvasionWaveSizeStep.desc": "Mise à l'échelle linéaire : chaque vague contient « taille 1ʳᵉ vague + (vague-1) × incrément » mobs.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionEnabled": "Cohésion de vague",
-    "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionEnabled.desc": "Quand activé, le premier mob de chaque vague agit comme leader. Les autres membres se regroupent autour de lui dès qu'ils s'éloignent trop. Les suivants déjà en combat ne sont pas dérangés, et les passagers de monture sont ignorés.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionRadius": "Rayon de cohésion",
-    "yacl3.config.encounters:config.netherPortalInvasionGroupCohesionRadius.desc": "Distance en blocs au-delà de laquelle un membre de vague est rappelé vers son leader.",
-
-    "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled": "Barrage de bombes de magma",
-    "yacl3.config.encounters:config.netherPortalInvasionMagmaBombEnabled.desc": "Quand activé et qu'Iron's Spells 'n Spellbooks est chargé, le portail lance périodiquement des sorts Magma Bomb pendant l'invasion. Les bombes suivent une trajectoire en cloche et explosent à l'impact en laissant un champ de feu. Le niveau du sort augmente de +1 par vague (plafonné à 8). Sans effet si le mod est absent.",
-
-    "yacl3.config.encounters:config.patrolSkirmishEnabled": "Activé",
-    "yacl3.config.encounters:config.patrolSkirmishEnabled.desc": "Interrupteur principal de l'évènement d'escarmouche de patrouille. Désactivé, aucune escarmouche n'apparaîtra jamais.",
-
-    "yacl3.config.encounters:config.patrolSkirmishScanIntervalTicks": "Intervalle de scan (ticks)",
-    "yacl3.config.encounters:config.patrolSkirmishScanIntervalTicks.desc": "Fréquence à laquelle le scanner tente de faire apparaître une nouvelle escarmouche. 1200 ticks = 1 minute. Une valeur plus basse réagit plus vite mais coûte un peu plus.",
-
-    "yacl3.config.encounters:config.patrolSkirmishTriggerChance": "Chance de déclenchement",
-    "yacl3.config.encounters:config.patrolSkirmishTriggerChance.desc": "Probabilité que le scanner fasse apparaître une escarmouche à un site éligible lors d'un scan. 0 = jamais, 1 = à chaque scan.",
-
-    "yacl3.config.encounters:config.patrolSkirmishMaxConcurrent": "Escarmouches simultanées max",
-    "yacl3.config.encounters:config.patrolSkirmishMaxConcurrent.desc": "Nombre maximum d'escarmouches qui peuvent se dérouler simultanément sur le niveau. Une fois atteint, le scanner ignore les nouveaux spawns jusqu'à ce qu'une finisse.",
-
-    "yacl3.config.encounters:config.patrolSkirmishMinDistanceBetween": "Distance min entre escarmouches",
-    "yacl3.config.encounters:config.patrolSkirmishMinDistanceBetween.desc": "Distance minimale en blocs entre deux escarmouches simultanées. Empêche les regroupements quand plusieurs joueurs explorent des zones différentes.",
-
-    "yacl3.config.encounters:config.patrolSkirmishCooldownTicks": "Cooldown (ticks)",
-    "yacl3.config.encounters:config.patrolSkirmishCooldownTicks.desc": "Cooldown après la fin d'une escarmouche avant qu'une nouvelle puisse apparaître. 6000 ticks = 5 minutes.",
-
-    "yacl3.config.encounters:config.patrolSkirmishDayOnly": "Jour uniquement",
-    "yacl3.config.encounters:config.patrolSkirmishDayOnly.desc": "Quand activé, les escarmouches n'apparaissent que de jour. Désactivé, des escarmouches nocturnes sont possibles — attendez-vous à plus de chaos car les mobs hostiles vanilla peuvent s'incruster.",
-
-    "yacl3.config.encounters:config.patrolSkirmishTimeoutTicks": "Timeout de l'escarmouche (ticks)",
-    "yacl3.config.encounters:config.patrolSkirmishTimeoutTicks.desc": "Durée maximale d'une escarmouche avant nettoyage forcé. 24000 ticks = 20 minutes.",
-
-    "yacl3.config.encounters:config.patrolSkirmishRewardWaitMaxTicks": "Timeout d'attente de récompense (ticks)",
-    "yacl3.config.encounters:config.patrolSkirmishRewardWaitMaxTicks.desc": "Après la fin du combat, durée pendant laquelle la cinématique de récompense attend un joueur éligible (non hostile) avant d'abandonner. 2400 ticks = 2 minutes.",
-
-    "yacl3.config.encounters:config.patrolSkirmishMobsPerSide": "Mobs par camp",
-    "yacl3.config.encounters:config.patrolSkirmishMobsPerSide.desc": "Nombre de mobs apparaissant par camp au démarrage. L'échelle skirmish (4-6) se lit mieux qu'une bataille rangée.",
-
-    "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide": "Chance de caravane par camp",
-    "yacl3.config.encounters:config.patrolSkirmishCaravanChancePerSide.desc": "Probabilité qu'une caravane (un porteur menant un animal de bât chargé d'un coffre) accompagne chaque camp. Lancée indépendamment par camp."
+    "text.autoconfig.encounters.option.skirmish.enabled": "Activé",
+    "text.autoconfig.encounters.option.skirmish.enabled.@Tooltip": "Interrupteur principal de l'évènement d'escarmouche de patrouille.",
+    "text.autoconfig.encounters.option.skirmish.scanner": "Scanner",
+    "text.autoconfig.encounters.option.skirmish.scanner.triggerChance": "Chance de déclenchement",
+    "text.autoconfig.encounters.option.skirmish.scanner.triggerChance.@Tooltip": "Probabilité que le scanner fasse apparaître une escarmouche à un site éligible. 0 = jamais, 1 = à chaque scan.",
+    "text.autoconfig.encounters.option.skirmish.scanner.scanIntervalTicks": "Intervalle de scan (ticks)",
+    "text.autoconfig.encounters.option.skirmish.scanner.scanIntervalTicks.@Tooltip": "Cadence de scan en ticks (1200 = 1 min).",
+    "text.autoconfig.encounters.option.skirmish.concurrency": "Concurrence",
+    "text.autoconfig.encounters.option.skirmish.concurrency.maxConcurrent": "Concurrence max",
+    "text.autoconfig.encounters.option.skirmish.concurrency.maxConcurrent.@Tooltip": "Nombre maximum d'escarmouches simultanées sur un niveau.",
+    "text.autoconfig.encounters.option.skirmish.concurrency.minDistanceBetween": "Distance min entre escarmouches",
+    "text.autoconfig.encounters.option.skirmish.concurrency.minDistanceBetween.@Tooltip": "Distance minimale (blocs) entre deux escarmouches simultanées.",
+    "text.autoconfig.encounters.option.skirmish.cooldown": "Cooldown post-événement",
+    "text.autoconfig.encounters.option.skirmish.cooldown.cooldownTicks": "Cooldown (ticks)",
+    "text.autoconfig.encounters.option.skirmish.cooldown.cooldownTicks.@Tooltip": "Délai après la fin d'une escarmouche avant qu'une nouvelle puisse apparaître (6000 = 5 min).",
+    "text.autoconfig.encounters.option.skirmish.dayOnly": "Jour uniquement",
+    "text.autoconfig.encounters.option.skirmish.dayOnly.@Tooltip": "Apparaît uniquement de jour. Désactiver autorise les escarmouches nocturnes ; attendez-vous à plus de chaos, les hostiles vanilla peuvent s'incruster.",
+    "text.autoconfig.encounters.option.skirmish.timeoutTicks": "Timeout de l'escarmouche (ticks)",
+    "text.autoconfig.encounters.option.skirmish.timeoutTicks.@Tooltip": "Durée maximale d'une escarmouche avant nettoyage forcé (24000 = 20 min).",
+    "text.autoconfig.encounters.option.skirmish.rewardWaitMaxTicks": "Timeout d'attente de récompense (ticks)",
+    "text.autoconfig.encounters.option.skirmish.rewardWaitMaxTicks.@Tooltip": "Après la fin du combat, durée pendant laquelle la cinématique de récompense attend un joueur éligible avant d'abandonner (2400 = 2 min).",
+    "text.autoconfig.encounters.option.skirmish.mobsPerSide": "Mobs par camp",
+    "text.autoconfig.encounters.option.skirmish.mobsPerSide.@Tooltip": "Mobs apparaissant par camp au démarrage.",
+    "text.autoconfig.encounters.option.skirmish.caravanChancePerSide": "Chance de caravane par camp",
+    "text.autoconfig.encounters.option.skirmish.caravanChancePerSide.@Tooltip": "Probabilité qu'une caravane (porteur + animal de bât chargé d'un coffre) accompagne chaque camp. Lancée indépendamment par camp.",
+    "text.autoconfig.encounters.option.skirmish.biomes": "Biomes autorisés",
+    "text.autoconfig.encounters.option.skirmish.biomes.@Tooltip": "Biomes où une escarmouche peut apparaître. Identifiants de biomes namespacés (ex. minecraft:plains)."
 }

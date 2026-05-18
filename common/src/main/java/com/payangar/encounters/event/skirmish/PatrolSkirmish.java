@@ -2,6 +2,7 @@ package com.payangar.encounters.event.skirmish;
 
 import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.EncountersConfig;
+import com.payangar.encounters.event.ActiveEncounterTracker;
 import com.payangar.encounters.event.EncounterSpawner;
 import com.payangar.encounters.event.MobRoster;
 import com.payangar.encounters.event.ResolvedMob;
@@ -40,11 +41,11 @@ import java.util.Optional;
  * patrol and an illager-side patrol anchored at a clearing in the overworld.
  *
  * <p>Spawns once at construction: two pockets of
- * {@link EncountersConfig#patrolSkirmishMobsPerSide} mobs each, separated
- * by {@code 2 × POCKET_OFFSET} blocks along a random horizontal axis. No
- * wave system; combat ends when one faction is eliminated (or has every
- * member outside the out-of-zone radius), or when
- * {@link EncountersConfig#patrolSkirmishTimeoutTicks} elapses.</p>
+ * {@code skirmish.mobsPerSide} mobs each, separated by
+ * {@code 2 × POCKET_OFFSET} blocks along a random horizontal axis. No wave
+ * system; combat ends when one faction is eliminated (or has every member
+ * outside the out-of-zone radius), or when {@code skirmish.timeoutTicks}
+ * elapses.</p>
  *
  * <p>After combat ends, a reward state machine takes over:</p>
  * <pre>
@@ -176,7 +177,7 @@ public final class PatrolSkirmish implements Cinematic {
         illagerCaravanMobs.removeIf(m -> !m.isAlive() || m.isRemoved());
 
         // Global timeout always wins.
-        if (tickCount >= EncountersConfig.get().patrolSkirmishTimeoutTicks) {
+        if (tickCount >= EncountersConfig.get().skirmish.timeoutTicks) {
             Constants.LOG.info("[{}] timed out at ({}, {}, {})",
                     PatrolSkirmishEvent.ID, anchorPos.getX(), anchorPos.getY(), anchorPos.getZ());
             finishAndRelease();
@@ -208,7 +209,7 @@ public final class PatrolSkirmish implements Cinematic {
 
     private void spawnInitialPockets() {
         EncountersConfig config = EncountersConfig.get();
-        int perSide = config.patrolSkirmishMobsPerSide;
+        int perSide = config.skirmish.mobsPerSide;
         MobRoster villagerRoster = PatrolSkirmishEvent.villagerRoster();
         MobRoster illagerRoster = PatrolSkirmishEvent.illagerRoster();
         if (villagerRoster.isEmpty() || illagerRoster.isEmpty()) return;
@@ -372,7 +373,7 @@ public final class PatrolSkirmish implements Cinematic {
 
         // Hard timeout on the reward path — stops the leader cinematic and the
         // tick from running indefinitely while we wait for an eligible player.
-        int rewardMax = EncountersConfig.get().patrolSkirmishRewardWaitMaxTicks;
+        int rewardMax = EncountersConfig.get().skirmish.rewardWaitMaxTicks;
         if (rewardState == RewardState.PENDING && rewardPendingTicks >= rewardMax) {
             rewardState = RewardState.EXPIRED;
             Constants.LOG.info("[{}] reward expired: no eligible player within {} ticks",
@@ -655,6 +656,9 @@ public final class PatrolSkirmish implements Cinematic {
         finished = true;
         EncounterAllies.disbandGroup(level, villagerGroup);
         EncounterAllies.disbandGroup(level, illagerGroup);
-        PatrolSkirmishEvent.releaseSkirmish(this);
+        // Tracker.unregister also bumps the post-event cooldown timestamp.
+        ActiveEncounterTracker.unregister(this);
+        Constants.LOG.info("[{}] skirmish released at tick {}",
+                PatrolSkirmishEvent.ID, level.getGameTime());
     }
 }

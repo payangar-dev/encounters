@@ -2,6 +2,7 @@ package com.payangar.encounters.event.portal;
 
 import com.payangar.encounters.Constants;
 import com.payangar.encounters.config.EncountersConfig;
+import com.payangar.encounters.event.ActiveEncounterTracker;
 import com.payangar.encounters.event.ally.EncounterAllies;
 import com.payangar.encounters.event.banner.BannerArmy;
 import com.payangar.encounters.event.cinematic.Cinematic;
@@ -106,8 +107,8 @@ public final class PortalInvasion implements Cinematic {
         this.groupName = EncounterAllies.newGroupName();
         BannerArmy bannerArmy = BannerArmy.random(NetherPortalInvasionEvent.BANNER_THEMES, level.getRandom());
         EncountersConfig config = EncountersConfig.get();
-        int min = Math.max(1, config.netherPortalInvasionMinWaves);
-        int max = Math.max(min, config.netherPortalInvasionMaxWaves);
+        int min = Math.max(1, config.portal.minWaves);
+        int max = Math.max(min, config.portal.maxWaves);
         this.totalWaves = min + level.getRandom().nextInt(max - min + 1);
 
         this.spawner = new InvasionWaveSpawner(level, site, spawnFace, groupName, bannerArmy, currentWaveMobs);
@@ -251,8 +252,8 @@ public final class PortalInvasion implements Cinematic {
         List<Mob> ground = currentWaveMobs.stream().filter(m -> !m.isPassenger()).toList();
         if (ground.size() < 2) return;
         GroupCohesionTicker.start(new GroupCohesion(level, ground,
-                () -> EncountersConfig.get().netherPortalInvasionGroupCohesionEnabled,
-                () -> EncountersConfig.get().netherPortalInvasionGroupCohesionRadius));
+                () -> EncountersConfig.get().portal.cohesion.enabled,
+                () -> EncountersConfig.get().portal.cohesion.radius));
     }
 
     private void tickCombat() {
@@ -302,8 +303,8 @@ public final class PortalInvasion implements Cinematic {
     private void startNextWave() {
         currentWave++;
         EncountersConfig config = EncountersConfig.get();
-        currentWaveSize = config.netherPortalInvasionFirstWaveSize
-                + (currentWave - 1) * config.netherPortalInvasionWaveSizeStep;
+        currentWaveSize = config.portal.firstWaveSize
+                + (currentWave - 1) * config.portal.waveSizeStep;
         spawnedThisWave = 0;
         currentWaveMobs.clear();
         phase = Phase.WAVE_SPAWN;
@@ -341,6 +342,9 @@ public final class PortalInvasion implements Cinematic {
         magmaBomb.discard();
         EncounterAllies.disbandGroup(level, groupName);
         EncountersNetwork.sendInvasionEnd(level, anchorKey);
-        NetherPortalInvasionEvent.releaseLock(this);
+        // Tracker.unregister also bumps the post-event cooldown timestamp.
+        ActiveEncounterTracker.unregister(this);
+        Constants.LOG.info("[{}] invasion released at tick {}",
+                NetherPortalInvasionEvent.ID, level.getGameTime());
     }
 }

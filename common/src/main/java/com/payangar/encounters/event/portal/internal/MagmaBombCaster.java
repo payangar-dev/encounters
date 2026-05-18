@@ -62,7 +62,7 @@ public final class MagmaBombCaster {
      * scaling.
      */
     public void tick(int currentWave) {
-        if (!EncountersConfig.get().netherPortalInvasionMagmaBombEnabled) return;
+        if (!EncountersConfig.get().portal.magmaBombEnabled) return;
         if (!Services.SPELLS.isAvailable()) return;
 
         ensureCaster();

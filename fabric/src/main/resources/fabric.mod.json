@@ -29,7 +29,7 @@
         "fabric-api": "*",
         "minecraft": "${minecraft_version}",
         "java": ">=${java_version}",
-        "yet_another_config_lib_v3": ">=3.6.2"
+        "cloth-config": ">=15.0.0"
     },
     "suggests": {
         "modmenu": "*"

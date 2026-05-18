@@ -45,8 +45,8 @@ repositories {
 }
 
 dependencies {
-    // YACL — optional client-side config GUI
-    implementation "dev.isxander:yet-another-config-lib:${yacl_version}-neoforge"
+    // Cloth Config — config screen builder + JSON5 (Jankson) serializer.
+    implementation "me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}"
 
     // Iron's Spells 'n Spellbooks — optional compat (NeoForge-only mod).
     // compileOnly: not required at runtime; bridge is no-op when absent.

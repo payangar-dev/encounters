@@ -59,7 +59,7 @@ public final class EncounterSpawner {
 
         // Must run after loadEntityRecursive/finalizeSpawn to override both
         // user-provided HandDropChances/ArmorDropChances NBT and vanilla defaults.
-        if (!EncountersConfig.get().mobsDropEquipment && entity instanceof Mob m) {
+        if (!EncountersConfig.get().general.mobsDropEquipment && entity instanceof Mob m) {
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 m.setDropChance(slot, 0f);
             }

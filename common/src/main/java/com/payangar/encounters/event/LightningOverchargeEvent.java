@@ -55,8 +55,8 @@ public final class LightningOverchargeEvent {
         if (bolt.getTags().contains(OWN_BOLT_TAG)) return false;
 
         EncountersConfig config = EncountersConfig.get();
-        if (!config.lightningOverchargeEnabled) return false;
-        if (config.lightningOverchargeChance <= 0.0) return false;
+        if (!config.lightning.enabled) return false;
+        if (config.lightning.chancePerBolt <= 0.0) return false;
         if (!isNaturalStormBolt(level, bolt)) return false;
 
         // Bail out *before* cancelling the vanilla bolt if the roster is empty —
@@ -64,7 +64,7 @@ public final class LightningOverchargeEvent {
         if (roster().isEmpty()) return false;
 
         RandomSource rng = level.getRandom();
-        if (rng.nextDouble() >= config.lightningOverchargeChance) return false;
+        if (rng.nextDouble() >= config.lightning.chancePerBolt) return false;
 
         Vec3 pos = bolt.position();
         // Defer to next tick to avoid reentrancy during entity add/join events.
@@ -88,8 +88,8 @@ public final class LightningOverchargeEvent {
         if (roster.isEmpty()) return 0;
 
         RandomSource rng = level.getRandom();
-        int min = Math.max(1, config.lightningOverchargeGroupMin);
-        int max = Math.max(min, config.lightningOverchargeGroupMax);
+        int min = Math.max(1, config.lightning.groupMin);
+        int max = Math.max(min, config.lightning.groupMax);
         int count = min + rng.nextInt(max - min + 1);
 
         LightningCinematic cinematic = new LightningCinematic(level, pos);
@@ -140,8 +140,8 @@ public final class LightningOverchargeEvent {
             CinematicTicker.start(cinematic);
             if (groupMembers.size() >= 2) {
                 GroupCohesionTicker.start(new GroupCohesion(level, groupMembers,
-                        () -> EncountersConfig.get().lightningOverchargeGroupCohesionEnabled,
-                        () -> EncountersConfig.get().lightningOverchargeGroupCohesionRadius));
+                        () -> EncountersConfig.get().lightning.cohesion.enabled,
+                        () -> EncountersConfig.get().lightning.cohesion.radius));
             }
             String summary = formatBreakdown(breakdown);
             Constants.LOG.info("[{}] triggered at ({}, {}, {}): {}",

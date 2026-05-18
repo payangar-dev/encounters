@@ -91,8 +91,8 @@ public final class CaravanSpawner {
     private CaravanSpawner() {}
 
     /**
-     * Rolls {@link EncountersConfig#patrolSkirmishCaravanChancePerSide} and,
-     * on success, spawns a carrier + chest pack animal at the rear of the
+     * Rolls {@code skirmish.caravanChancePerSide} and, on success, spawns a
+     * carrier + chest pack animal at the rear of the
      * faction's pocket. All spawned mobs are tagged into {@code groupName}
      * and appended to {@code dest}.
      *
@@ -104,7 +104,7 @@ public final class CaravanSpawner {
                                         Vec3 awayDirection, String groupName, List<Mob> dest,
                                         RandomSource rng) {
         EncountersConfig config = EncountersConfig.get();
-        if (rng.nextDouble() >= config.patrolSkirmishCaravanChancePerSide) return 0;
+        if (rng.nextDouble() >= config.skirmish.caravanChancePerSide) return 0;
 
         Vec3 caravanCentre = pocketCentre.add(
                 awayDirection.x * REAR_GUARD_OFFSET, 0, awayDirection.z * REAR_GUARD_OFFSET);
